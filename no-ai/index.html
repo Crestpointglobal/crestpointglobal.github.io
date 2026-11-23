@@ -244,13 +244,13 @@
       transition: transform .3s, box-shadow .3s;
     }
     .fb-pill--red {
-      left: 33.8%; top: 83.4%;
+      left: 35.5%; top: 84.8%;
       --fb-tilt: -16deg;
       background: radial-gradient(60% 50% at 35% 22%, #ff7a80, #b3121f 55%, #4a0207 100%);
       box-shadow: 0 0 46px -8px rgba(255,45,70,.85), inset 0 -9px 24px rgba(0,0,0,.55);
     }
     .fb-pill--blue {
-      left: 66.1%; top: 83.4%;
+      left: 63.1%; top: 84.8%;
       --fb-tilt: 16deg;
       background: radial-gradient(60% 50% at 35% 22%, #8cbcff, #1445c4 55%, #03123f 100%);
       box-shadow: 0 0 46px -8px rgba(45,120,255,.85), inset 0 -9px 24px rgba(0,0,0,.55);
@@ -271,8 +271,8 @@
     /* portrait / phone: the contained photo sits centred on the bottom edge,
        which keeps both open palms on screen */
     @media (max-aspect-ratio: 1/1) {
-      .fb-pill--red  { left: 16.7%; top: 90.1%; }
-      .fb-pill--blue { left: 83.1%; top: 90.1%; }
+      .fb-pill--red  { left: 20.2%; top: 91.0%; }
+      .fb-pill--blue { left: 76.9%; top: 91.0%; }
     }
 
     @media (max-width: 420px) {
@@ -315,7 +315,7 @@
          then the 3D pills crisp on top of everything -->
     <div class="morpheus" id="morpheus" aria-hidden="true">
       <div class="m-glitch">
-        <img class="m-photo" id="mPhoto" src="/assets/images/morpheus.webp"
+        <img class="m-photo" id="mPhoto" src="/assets/images/morpheus.webp?v=2"
              alt="" width="896" height="1152" decoding="async" draggable="false">
       </div>
     </div>
@@ -749,7 +749,7 @@
       var W = 1, H = 1;
       var photo = document.getElementById("mPhoto");
 
-      var L_PALM_X = 0.167, R_PALM_X = 0.831, PALM_Y = 0.834;
+      var L_PALM_X = 0.202, R_PALM_X = 0.769, PALM_Y = 0.848;
       var pillScale = 0.17;   /* pivot scale — the capsule body is 1.66 units tall */
       var floatAmp = 0.01;    /* world units of idle bob */
 
