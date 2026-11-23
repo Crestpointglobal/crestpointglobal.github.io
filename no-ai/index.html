@@ -142,42 +142,45 @@
       display: block;
       pointer-events: none;
     }
-    #rain { opacity: .8; }
-    #rainFront { opacity: .3; filter: blur(1.3px); }
+    /* `lighten` melts the figure's pure-black backdrop into the page, so the
+       rain reads as falling behind the man while staying continuous */
+    #rain { opacity: .85; mix-blend-mode: lighten; }
+    #rainFront { opacity: .3; filter: blur(1.3px); mix-blend-mode: lighten; }
 
     .morpheus {
       position: absolute; inset: 0;
       pointer-events: none;
-      overflow: hidden;
+    }
+
+    .m-glitch { position: absolute; inset: 0; }
+    /* the figure is a still photograph, and the 3D pills are locked to its
+       palms, so it must never translate or scale while a visitor chooses.
+       `lighten` melts its near-black backdrop into the page glow, leaving no
+       visible panel edge, and the fade lives here so the blend is never
+       isolated by a parent's opacity. */
+    .m-photo {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      object-position: center bottom;
       opacity: 0;
-      transition: opacity 1.2s ease .1s, transform .45s cubic-bezier(.22,.8,.3,1);
-      will-change: transform;
+      transition: opacity 1.2s ease .1s;
+      mix-blend-mode: lighten;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
     }
-    #reward-screen.is-on .morpheus { opacity: 1; }
+    #reward-screen.is-on .m-photo { opacity: 1; }
 
-    /* breathe + glitch run on plain divs, so they stay on the compositor
-       instead of forcing a repaint of the whole SVG every frame */
-    .m-fig, .m-glitch { position: absolute; inset: 0; will-change: transform; }
-    .m-fig { animation: breathe 7.5s ease-in-out infinite; }
-    .morpheus.glitch .m-glitch { animation: glitchShift .36s steps(2, end) 1; }
+    /* datamosh hiccup: clips and recolours only, so the palms hold still */
+    .morpheus.glitch .m-photo { animation: glitchClip .38s steps(2, end) 1; }
 
-    .morpheus svg {
-      position: absolute; left: 50%; bottom: 0;
-      width: 100%; height: auto;
-      transform: translateX(-50%);
-      transform-origin: 50% 100%;
-    }
-
-    @keyframes breathe {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50%      { transform: translateY(-7px) scale(1.006); }
-    }
-    @keyframes glitchShift {
-      0%   { transform: translateX(0); }
-      20%  { transform: translateX(-6px) skewX(-.7deg); }
-      45%  { transform: translateX(5px); }
-      70%  { transform: translateX(-3px) skewX(.5deg); }
-      100% { transform: translateX(0); }
+    @keyframes glitchClip {
+      0%   { clip-path: inset(0); filter: none; }
+      22%  { clip-path: inset(9% 0 46% 0); filter: hue-rotate(24deg) saturate(1.5) brightness(1.12); }
+      46%  { clip-path: inset(58% 0 6% 0); filter: hue-rotate(-18deg) brightness(.92); }
+      72%  { clip-path: inset(31% 0 29% 0); filter: none; }
+      100% { clip-path: inset(0); filter: none; }
     }
 
     .select-glow {
@@ -197,8 +200,8 @@
     /* invisible hit targets that track the projected pills */
     .pill-hit {
       position: absolute; left: 0; top: 0;
-      width: clamp(150px, 24vmin, 300px);
-      height: clamp(220px, 40vmin, 440px);
+      width: clamp(78px, 11vmin, 132px);
+      height: clamp(78px, 11vmin, 132px);
       transform: translate(-50%, -50%);
       border-radius: 50%;
       cursor: pointer;
@@ -226,32 +229,34 @@
       animation: spin 1s linear infinite;
     }
 
-    /* if WebGL is unavailable: two blank pills, still clickable */
+    /* if WebGL is unavailable: two small blank pills sitting in the palms */
     .select-fallback {
       position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      gap: clamp(20px, 6vw, 70px);
-      padding: 24px;
     }
     /* the author `display:flex` above beats the UA [hidden] rule, so be explicit */
     .select-fallback[hidden] { display: none; }
     .fb-pill {
-      width: clamp(64px, 12vmin, 120px);
-      height: clamp(150px, 30vmin, 260px);
+      position: absolute;
+      width: clamp(30px, 4.4vmin, 46px);
+      height: clamp(58px, 8.6vmin, 92px);
       border-radius: 999px;
-      position: relative;
+      transform: translate(-50%, -50%) rotate(var(--fb-tilt, 14deg));
       transition: transform .3s, box-shadow .3s;
     }
     .fb-pill--red {
+      left: 33.8%; top: 83.4%;
+      --fb-tilt: -16deg;
       background: radial-gradient(60% 50% at 35% 22%, #ff7a80, #b3121f 55%, #4a0207 100%);
-      box-shadow: 0 0 70px -12px rgba(255,45,70,.8), inset 0 -12px 34px rgba(0,0,0,.55);
+      box-shadow: 0 0 46px -8px rgba(255,45,70,.85), inset 0 -9px 24px rgba(0,0,0,.55);
     }
     .fb-pill--blue {
+      left: 66.1%; top: 83.4%;
+      --fb-tilt: 16deg;
       background: radial-gradient(60% 50% at 35% 22%, #8cbcff, #1445c4 55%, #03123f 100%);
-      box-shadow: 0 0 70px -12px rgba(45,120,255,.8), inset 0 -12px 34px rgba(0,0,0,.55);
+      box-shadow: 0 0 46px -8px rgba(45,120,255,.85), inset 0 -9px 24px rgba(0,0,0,.55);
     }
-    .fb-pill:hover { transform: translateY(-6px) scale(1.04); }
-    .fb-pill:focus-visible { outline: 2px solid #fff; outline-offset: 8px; }
+    .fb-pill:hover { transform: translate(-50%, -50%) rotate(var(--fb-tilt, 14deg)) scale(1.1); }
+    .fb-pill:focus-visible { outline: 2px solid #fff; outline-offset: 6px; }
 
     @keyframes selectIn { from { opacity: 0 } to { opacity: 1 } }
     @keyframes spin { to { transform: rotate(360deg) } }
@@ -260,16 +265,14 @@
       #reward-screen { animation: none; }
       * { transition: none !important; }
       .select-loader i { animation-duration: 3s; }
-      .m-fig,
-      .morpheus.glitch .m-glitch { animation: none; }
+      .morpheus.glitch .m-photo { animation: none; }
     }
 
-    /* portrait / phone: keep the bust tall so the face clears the pills */
+    /* portrait / phone: the contained photo sits centred on the bottom edge,
+       which keeps both open palms on screen */
     @media (max-aspect-ratio: 1/1) {
-      .morpheus svg {
-        width: auto; height: 94%;
-        transform: translateX(-50%) translateY(-6%);
-      }
+      .fb-pill--red  { left: 16.7%; top: 90.1%; }
+      .fb-pill--blue { left: 83.1%; top: 90.1%; }
     }
 
     @media (max-width: 420px) {
@@ -308,82 +311,19 @@
 
   <!-- UNLOCKED: cinematic pill selection -->
   <section id="reward-screen" tabindex="-1" aria-label="Choose a path">
-    <!-- hacking backdrop: code rain, then the figure, then the pills -->
-    <canvas id="rain" aria-hidden="true"></canvas>
-
+    <!-- the figure first, then the code rain blended over its black backdrop,
+         then the 3D pills crisp on top of everything -->
     <div class="morpheus" id="morpheus" aria-hidden="true">
-     <div class="m-fig"><div class="m-glitch">
-      <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax meet" role="presentation" focusable="false">
-        <defs>
-          <linearGradient id="mBody" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#4a6d92"/>
-            <stop offset=".24" stop-color="#2c4460"/>
-            <stop offset=".58" stop-color="#16233a"/>
-            <stop offset="1" stop-color="#0a1120"/>
-          </linearGradient>
-          <radialGradient id="mHalo" cx=".5" cy=".44" r=".54">
-            <stop offset="0" stop-color="#3396cc" stop-opacity=".5"/>
-            <stop offset=".42" stop-color="#1c5b85" stop-opacity=".26"/>
-            <stop offset="1" stop-color="#0e3f63" stop-opacity="0"/>
-          </radialGradient>
-          <pattern id="mScanPat" width="6" height="6" patternUnits="userSpaceOnUse">
-            <rect width="6" height="3" fill="#19e3ff" fill-opacity=".15"/>
-          </pattern>
-          <clipPath id="mClip"><use href="#mSilhouette"/></clipPath>
-          <g id="mSilhouette">
-            <!-- head + jaw -->
-            <path d="M800 162c-50 0-88 44-88 102 0 39 18 74 47 94 12 8 26 12 41 12s29-4 41-12c29-20 47-55 47-94 0-58-38-102-88-102Z"/>
-            <!-- neck -->
-            <path d="M768 360h64v108h-64Z"/>
-            <!-- coat: V neckline, sloping shoulders, arms down to a wide hem -->
-            <path d="M766 468C720 476 676 490 640 516C604 542 584 588 574 648C562 794 556 900 556 1000L1044 1000C1044 900 1038 794 1026 648C1016 588 996 542 960 516C924 490 880 476 834 468Q800 522 766 468Z"/>
-          </g>
-        </defs>
-
-        <rect x="0" y="0" width="1600" height="1000" fill="url(#mHalo)"/>
-
-        <g>
-          <!-- Peel a TRUE rim light: the whole silhouette is stroked while offset
-               each way, then one solid body fill is laid over the top. The fill
-               hides every internal seam (head / neck / shoulders), so only the
-               clean outer contour survives. -->
-          <g fill="none" stroke-linejoin="round">
-            <use href="#mSilhouette" stroke="#19e3ff" stroke-opacity=".12" stroke-width="34" transform="translate(-10,0)"/>
-            <use href="#mSilhouette" stroke="#19e3ff" stroke-opacity=".34" stroke-width="14" transform="translate(-6,0)"/>
-            <use href="#mSilhouette" stroke="#19e3ff" stroke-opacity=".95" stroke-width="3.5" transform="translate(-2.5,0)"/>
-            <use href="#mSilhouette" stroke="#ff2bd6" stroke-opacity=".12" stroke-width="34" transform="translate(10,0)"/>
-            <use href="#mSilhouette" stroke="#ff2bd6" stroke-opacity=".32" stroke-width="14" transform="translate(6,0)"/>
-            <use href="#mSilhouette" stroke="#ff2bd6" stroke-opacity=".9"  stroke-width="3.5" transform="translate(2.5,0)"/>
-          </g>
-
-          <g>
-            <use href="#mSilhouette" fill="url(#mBody)"/>
-
-            <!-- hologram scanlines, clipped to the figure (static: painted once) -->
-            <g clip-path="url(#mClip)">
-              <rect x="0" y="0" width="1600" height="1000" fill="url(#mScanPat)"/>
-            </g>
-
-            <!-- trench-coat lapels -->
-            <path d="M716 512 800 676 884 512" fill="none" stroke="#9fe0ff" stroke-opacity=".22" stroke-width="4"/>
-            <path d="M800 676v324" fill="none" stroke="#9fe0ff" stroke-opacity=".12" stroke-width="4"/>
-
-            <!-- sunglasses -->
-            <path d="M730 292c11-13 43-15 60-2 6 19-2 30-19 34-24 2-37-15-41-32Z"
-                  fill="#02050c" stroke="#7fe6ff" stroke-opacity=".7" stroke-width="3"/>
-            <path d="M870 292c-11-13-43-15-60-2-6 19 2 30 19 34 24 2 37-15 41-32Z"
-                  fill="#02050c" stroke="#7fe6ff" stroke-opacity=".7" stroke-width="3"/>
-            <path d="M788 284h24v11h-24Z" fill="#02050c" stroke="#7fe6ff" stroke-opacity=".5" stroke-width="2.5"/>
-            <path d="M744 286l40-5" stroke="#d8fdff" stroke-opacity=".9" stroke-width="4" stroke-linecap="round"/>
-            <path d="M856 286l-40-5" stroke="#d8fdff" stroke-opacity=".9" stroke-width="4" stroke-linecap="round"/>
-          </g>
-        </g>
-      </svg>
-     </div></div>
+      <div class="m-glitch">
+        <img class="m-photo" id="mPhoto" src="/assets/images/morpheus.webp"
+             alt="" width="896" height="1152" decoding="async" draggable="false">
+      </div>
     </div>
 
-    <canvas id="pill3d" aria-hidden="true"></canvas>
+    <canvas id="rain" aria-hidden="true"></canvas>
     <canvas id="rainFront" aria-hidden="true"></canvas>
+
+    <canvas id="pill3d" aria-hidden="true"></canvas>
 
     <div class="select-glow" aria-hidden="true"></div>
     <div class="select-vignette" aria-hidden="true"></div>
@@ -582,16 +522,8 @@
       }, 5200);
     }
 
-    /* the figure drifts against the pointer for a little depth */
-    var hasPointer = window.matchMedia("(hover: hover)").matches;
-    if (hasPointer && morph) {
-      window.addEventListener("pointermove", function (e) {
-        var nx = (e.clientX / window.innerWidth) * 2 - 1;
-        var ny = (e.clientY / window.innerHeight) * 2 - 1;
-        morph.style.transform =
-          "translate3d(" + (nx * -16).toFixed(1) + "px," + (ny * -9).toFixed(1) + "px,0)";
-      }, { passive: true });
-    }
+    /* no pointer drift on the figure: the 3D pills are pinned to its palms,
+       so any image movement would tear them apart */
 
     var rainResize = 0;
     window.addEventListener("resize", function () {
@@ -705,12 +637,10 @@
       rim.position.set(-4, 2, -5);
       scene.add(rim);
 
-      var redLight = new THREE.PointLight(0xff1f30, 3.0, 11, 2);
-      redLight.position.set(-1.7, 0.7, 1.7);
+      var redLight = new THREE.PointLight(0xff2233, 1.3, 0.8, 2);
       scene.add(redLight);
 
-      var blueLight = new THREE.PointLight(0x1f6bff, 3.0, 11, 2);
-      blueLight.position.set(1.7, 0.7, 1.7);
+      var blueLight = new THREE.PointLight(0x2f7bff, 1.3, 0.8, 2);
       scene.add(blueLight);
 
       /* ---- pill factory ---- */
@@ -769,8 +699,8 @@
           blending: THREE.AdditiveBlending,
           depthWrite: false
         }));
-        sprite.scale.set(3.1, 3.1, 1);
-        sprite.position.z = -0.75;
+        sprite.scale.set(2.5, 2.5, 1);
+        sprite.position.z = -0.55;
         return sprite;
       }
 
@@ -779,37 +709,18 @@
       var redPill = makePill(0x8e0a15, 0x2a0004, 0x5c0a10, 0xff3b48);
       redPivot.add(redPill);
       redPivot.add(addGlow(0xff2036));
-      redPill.rotation.set(0.18, -0.35, 0.5);
+      redPill.rotation.set(0.34, -0.32, 0.96);
       scene.add(redPivot);
 
       var bluePivot = new THREE.Group();
       var bluePill = makePill(0x0d33a8, 0x020a2e, 0x0a1f5a, 0x3f8dff);
       bluePivot.add(bluePill);
       bluePivot.add(addGlow(0x2f7bff));
-      bluePill.rotation.set(0.18, 0.35, -0.5);
+      bluePill.rotation.set(0.34, 0.32, -0.96);
       scene.add(bluePivot);
 
-      /* ---- no floor: the code-rain backdrop supplies the ground plane, and a
-         solid disc here would paint over the figure behind the canvas ---- */
-
-      /* ---- spotlight cones ---- */
-      function cone(color, x) {
-        var mesh = new THREE.Mesh(
-          new THREE.ConeGeometry(1.45, 5.2, 32, 1, true),
-          new THREE.MeshBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.045,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-            side: THREE.DoubleSide
-          })
-        );
-        mesh.position.set(x, 1.6, -0.7);
-        return mesh;
-      }
-      scene.add(cone(0xff2a3c, -1.18));
-      scene.add(cone(0x2f7bff, 1.18));
+      /* ---- no floor, no spotlight cone: the photograph supplies the ground
+         and the light, so anything big down here would dwarf the pills ---- */
 
       /* ---- dust ---- */
       var DUST = 240;
@@ -822,7 +733,7 @@
       var dustGeo = new THREE.BufferGeometry();
       dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
       var dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({
-        size: 0.035,
+        size: 0.018,
         color: 0x9fc6ff,
         transparent: true,
         opacity: 0.5,
@@ -831,26 +742,19 @@
       }));
       scene.add(dust);
 
-      /* ---- sizing ---- */
+      /* ---- camera + pill placement ------------------------------------
+         The pills live in the palms of a still photograph. Read the photo's
+         rendered rectangle, unproject the two palm points onto the z = 0
+         plane, and drop a pill there. Nothing else moves, so they stay put. */
       var W = 1, H = 1;
+      var photo = document.getElementById("mPhoto");
 
-      function resize() {
-        W = canvas.clientWidth || window.innerWidth;
-        H = canvas.clientHeight || window.innerHeight;
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-        renderer.setSize(W, H, false);
+      var L_PALM_X = 0.167, R_PALM_X = 0.831, PALM_Y = 0.834;
+      var pillScale = 0.17;   /* pivot scale — the capsule body is 1.66 units tall */
+      var floatAmp = 0.01;    /* world units of idle bob */
 
-        var portrait = (W / H) < 0.85;
-        var sep = portrait ? 0.74 : 1.18;
-
-        redPivot.position.x = -sep;
-        bluePivot.position.x = sep;
-        camera.aspect = W / H;
-        camera.position.z = portrait ? 8.2 : 5.6;
-        camera.updateProjectionMatrix();
-      }
-      window.addEventListener("resize", resize);
-      resize();
+      var redBase = new THREE.Vector3();
+      var blueBase = new THREE.Vector3();
 
       /* ---- hit targets follow the projected pills ---- */
       var hits = [
@@ -870,6 +774,81 @@
         }
       }
 
+      /* rectangle of the *rendered* image inside an object-fit: contain box */
+      function photoRect() {
+        var b = photo.getBoundingClientRect();
+        var ar = (photo.naturalWidth || 896) / (photo.naturalHeight || 1152);
+        var w = b.width, h = b.height, x = b.left, y = b.top;
+        if (w / h > ar) { w = h * ar; x += (b.width - w) / 2; }
+        else { h = w / ar; y += b.height - h; }   /* anchored to the bottom */
+        return { x: x, y: y, w: w, h: h };
+      }
+
+      /* screen pixels -> a point on the z = 0 plane */
+      function toPlane(sx, sy, out) {
+        out.set((sx / W) * 2 - 1, -(sy / H) * 2 + 1, 0.5).unproject(camera);
+        out.sub(camera.position).normalize();
+        var t = -camera.position.z / (out.z || -1);
+        return out.multiplyScalar(t).add(camera.position);
+      }
+
+      function layoutPills() {
+        if (!photo) return;
+        W = canvas.clientWidth || window.innerWidth;
+        H = canvas.clientHeight || window.innerHeight;
+
+        /* unproject/project read the camera matrices, which only refresh on
+           render — make sure they are current before placing anything */
+        camera.updateMatrixWorld(true);
+        camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
+
+        var r = photoRect();
+
+        /* world size of one screen pixel on the z = 0 plane */
+        var worldH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * camera.position.z;
+        var perPx = worldH / H;
+
+        /* the pill should read as roughly 8% of the figure's width */
+        pillScale = Math.max(0.085, (r.w * 0.082 * perPx) / 1.66);
+        floatAmp = Math.max(0.005, perPx * 2.4);
+
+        toPlane(r.x + r.w * L_PALM_X, r.y + r.h * PALM_Y, redBase);
+        toPlane(r.x + r.w * R_PALM_X, r.y + r.h * PALM_Y, blueBase);
+
+        redPivot.position.copy(redBase);
+        bluePivot.position.copy(blueBase);
+
+        /* the coloured kickers sit just above and in front of each pill, so the
+           falloff stays on the pill and never washes the photograph */
+        var off = perPx * 16;
+        redLight.position.set(redBase.x, redBase.y + off * 0.55, redBase.z + off * 1.6);
+        blueLight.position.set(blueBase.x, blueBase.y + off * 0.55, blueBase.z + off * 1.6);
+        redLight.distance = blueLight.distance = perPx * 170;
+
+        updateHits();
+      }
+
+      function resize() {
+        W = canvas.clientWidth || window.innerWidth;
+        H = canvas.clientHeight || window.innerHeight;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setSize(W, H, false);
+
+        camera.aspect = W / H;
+        camera.position.set(0, 0, 5.6);   /* fixed: no parallax, pills stay in the palms */
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
+
+        layoutPills();
+      }
+      window.addEventListener("resize", resize);
+      window.addEventListener("orientationchange", resize);
+      if (photo && (!photo.complete || !photo.naturalWidth)) {
+        photo.addEventListener("load", resize);
+        photo.addEventListener("error", resize);
+      }
+      resize();
+
       /* ---- hover / focus ---- */
       var hovered = null;
 
@@ -886,7 +865,8 @@
       function choose(pivot, url) {
         if (choosing) return;
         choosing = { pivot: pivot, t: 0 };
-        setTimeout(function () { window.location.href = url; }, 620);
+        /* the push-in is decoration: skip it entirely for reduced motion */
+        setTimeout(function () { window.location.href = url; }, reduced ? 0 : 620);
       }
 
       [
@@ -900,13 +880,6 @@
         });
       });
 
-      /* ---- pointer parallax ---- */
-      var px = 0, py = 0;
-      window.addEventListener("pointermove", function (e) {
-        px = (e.clientX / window.innerWidth) * 2 - 1;
-        py = (e.clientY / window.innerHeight) * 2 - 1;
-      }, { passive: true });
-
       /* ---- loop ---- */
       var clock = new THREE.Clock();
       var sRed = 1, sBlue = 1;
@@ -916,27 +889,27 @@
         var t = clock.elapsedTime;
         var sway = reduced ? 0 : 1;
 
-        /* float */
-        redPivot.position.y = Math.sin(t * 0.8) * 0.055 * sway;
-        bluePivot.position.y = Math.sin(t * 0.8 + 1.7) * 0.055 * sway;
+        /* idle bob — added on top of the palm anchor, never replacing it */
+        redPivot.position.set(
+          redBase.x, redBase.y + Math.sin(t * 0.8) * floatAmp * sway, redBase.z);
+        bluePivot.position.set(
+          blueBase.x, blueBase.y + Math.sin(t * 0.8 + 1.7) * floatAmp * sway, blueBase.z);
 
-        redPill.rotation.y = -0.35 + Math.sin(t * 0.45) * 0.22 * sway;
-        bluePill.rotation.y = 0.35 + Math.sin(t * 0.45 + 2.1) * 0.22 * sway;
-        redPill.rotation.z = 0.5 + Math.sin(t * 0.6) * 0.05 * sway;
-        bluePill.rotation.z = -0.5 - Math.sin(t * 0.6 + 0.8) * 0.05 * sway;
+        redPill.rotation.y = -0.32 + Math.sin(t * 0.45) * 0.16 * sway;
+        bluePill.rotation.y = 0.32 + Math.sin(t * 0.45 + 2.1) * 0.16 * sway;
+        redPill.rotation.z = 0.96 + Math.sin(t * 0.6) * 0.035 * sway;
+        bluePill.rotation.z = -0.96 - Math.sin(t * 0.6 + 0.8) * 0.035 * sway;
 
-        /* hover response */
-        var tRed = hovered === redPivot ? 1.12 : (hovered ? 0.95 : 1);
-        var tBlue = hovered === bluePivot ? 1.12 : (hovered ? 0.95 : 1);
+        /* hover response — the pills are small, so they lift generously */
+        var tRed = hovered === redPivot ? 1.5 : (hovered ? 0.94 : 1);
+        var tBlue = hovered === bluePivot ? 1.5 : (hovered ? 0.94 : 1);
         sRed += (tRed - sRed) * 0.14;
         sBlue += (tBlue - sBlue) * 0.14;
-        redPivot.scale.setScalar(sRed);
-        bluePivot.scale.setScalar(sBlue);
 
-        redPill.userData.mat.emissiveIntensity = 0.08 + (hovered === redPivot ? 0.45 : 0);
-        bluePill.userData.mat.emissiveIntensity = 0.08 + (hovered === bluePivot ? 0.45 : 0);
-        redLight.intensity = 3.0 + (hovered === redPivot ? 2.6 : 0);
-        blueLight.intensity = 3.0 + (hovered === bluePivot ? 2.6 : 0);
+        redPill.userData.mat.emissiveIntensity = 0.08 + (hovered === redPivot ? 0.5 : 0);
+        bluePill.userData.mat.emissiveIntensity = 0.08 + (hovered === bluePivot ? 0.5 : 0);
+        redLight.intensity = 1.3 + (hovered === redPivot ? 2.4 : 0);
+        blueLight.intensity = 1.3 + (hovered === bluePivot ? 2.4 : 0);
 
         /* dust */
         dust.rotation.y += dt * 0.02 * sway;
@@ -944,15 +917,17 @@
         /* camera */
         if (choosing) {
           choosing.t += dt;
-          var target = choosing.pivot === redPivot ? -0.9 : 0.9;
-          camera.position.x += (target - camera.position.x) * 0.08;
-          camera.position.z += (4.0 - camera.position.z) * 0.06;
-          camera.lookAt(choosing.pivot.position.x * 0.55, 0, 0);
-          choosing.pivot.scale.setScalar(1 + Math.min(1, choosing.t / 0.6) * 0.35);
+          var cp = choosing.pivot.position;
+          var k = 0.075;
+          camera.position.x += (cp.x - camera.position.x) * k;
+          camera.position.y += (cp.y - camera.position.y) * k;
+          camera.position.z += ((cp.z + 0.9) - camera.position.z) * k;
+          camera.lookAt(cp.x, cp.y, cp.z);
+          choosing.pivot.scale.setScalar(
+            pillScale * (1 + Math.min(1, choosing.t / 0.5) * 1.4));
         } else {
-          camera.position.x += ((px * 0.16) - camera.position.x) * 0.05;
-          camera.position.y += ((0.12 - py * 0.10) - camera.position.y) * 0.05;
-          camera.lookAt(0, 0, 0);
+          redPivot.scale.setScalar(pillScale * sRed);
+          bluePivot.scale.setScalar(pillScale * sBlue);
         }
 
         updateHits();
@@ -966,6 +941,16 @@
       window.__pills = {
         red: redPivot, blue: bluePivot, camera: camera,
         scene: scene, renderer: renderer,
+        base: { red: redBase, blue: blueBase },
+        rect: photoRect,
+        screen: function () {
+          var r = photoRect();
+          return {
+            red: { x: r.x + r.w * L_PALM_X, y: r.y + r.h * PALM_Y },
+            blue: { x: r.x + r.w * R_PALM_X, y: r.y + r.h * PALM_Y }
+          };
+        },
+        scale: function () { return redPivot.scale.x; },
         hovered: function () { return hovered === redPivot ? "red" : (hovered === bluePivot ? "blue" : null); }
       };
     }
