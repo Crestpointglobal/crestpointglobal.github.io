@@ -8,6 +8,9 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0a0a0c">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <!-- Warm the 3D engine while the visitor is still solving the puzzle, so the
+       reward scene appears the moment they unlock. Never blocks the puzzle. -->
+  <link rel="prefetch" href="/assets/three/three.min.js" as="script">
   <style>
     :root {
       --bg: #0a0a0c;
