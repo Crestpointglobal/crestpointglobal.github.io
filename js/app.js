@@ -97,6 +97,41 @@
   }
 
   /* ============================================================
+     RENDER — founder / CEO (sits above the team, with a string
+     dropped down to the mentor grid — drawn further below)
+     ============================================================ */
+  var ceoSlot = $("#ceoSlot");
+  if (ceoSlot && CP.ceo) {
+    var ceo = CP.ceo;
+    ceoSlot.innerHTML =
+      '<article class="ceo" data-reveal>' +
+        '<div class="ceo__glow" aria-hidden="true"></div>' +
+        '<div class="ceo__photo">' +
+          '<img src="' + esc(ceo.photo) + '" alt="Portrait of ' + esc(ceo.name) + ', ' + esc(ceo.role) + '" width="548" height="685">' +
+          '<span class="ceo__badge">Founder &amp; CEO</span>' +
+        "</div>" +
+        '<div class="ceo__body">' +
+          '<p class="ceo__eyebrow"><span></span>Leadership — the institute</p>' +
+          '<h3 class="ceo__name">' + esc(ceo.name) + "</h3>" +
+          '<p class="ceo__role">' + esc(ceo.role) + " · <span>" + esc(ceo.org) + "</span></p>" +
+          '<p class="ceo__lead">' + esc(ceo.lead) + "</p>" +
+          '<p class="ceo__summary">' + esc(ceo.summary) + "</p>" +
+          '<ul class="ceo__creds">' + ceo.credentials.map(function (c) {
+            return "<li><b>" + esc(c.k) + "</b><span>" + esc(c.v) + "</span></li>";
+          }).join("") + "</ul>" +
+          '<ul class="ceo__group">' + ceo.group.map(function (n) {
+            return "<li>" + esc(n) + "</li>";
+          }).join("") + "</ul>" +
+          '<div class="ceo__actions">' +
+            '<a class="btn btn--gold btn--sm" href="#group">Meet the group' +
+              '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>' +
+            '<button class="btn btn--ghost btn--sm" data-cv="' + esc(ceo.slug) + '">View full profile</button>' +
+          "</div>" +
+        "</div>" +
+      "</article>";
+  }
+
+  /* ============================================================
      REVEAL ON SCROLL
      ============================================================ */
   var revealItems = $$("[data-reveal]");
@@ -112,6 +147,124 @@
     revealItems.forEach(function (el) { revealIO.observe(el); });
   } else {
     revealItems.forEach(function (el) { el.classList.add("is-in"); });
+  }
+
+  /* ============================================================
+     ORG CONNECTOR — one string from the founder down to the
+     mentors: a spine, a bus per card row, and a drop per card.
+     Redrawn while the section is on screen so it tracks the
+     reveal transitions.
+     ============================================================ */
+  var orgWrap = $("#orgWrap");
+  var orgLines = $("#orgLines");
+  if (orgWrap && orgLines && $$(".mentor", orgWrap).length) {
+    var SVGNS = "http://www.w3.org/2000/svg";
+    var orgRaf = 0;
+    var orgLastT = 0;
+    var orgSig = "";
+
+    function svgEl(tag, attrs) {
+      var n = document.createElementNS(SVGNS, tag);
+      for (var k in attrs) if (attrs.hasOwnProperty(k)) n.setAttribute(k, attrs[k]);
+      return n;
+    }
+
+    function drawOrg() {
+      var ceoEl = $(".ceo", orgWrap);
+      var mentors = $$(".mentor", orgWrap);
+      if (!ceoEl || !mentors.length) return;
+
+      var wRect = orgWrap.getBoundingClientRect();
+      var W = Math.round(wRect.width);
+      var H = Math.round(wRect.height);
+      if (W < 2 || H < 2) return;
+
+      var cRect = ceoEl.getBoundingClientRect();
+      var cx = Math.round(cRect.left - wRect.left + cRect.width / 2);
+      var cy = Math.round(cRect.bottom - wRect.top);
+
+      var rows = [];
+      mentors.forEach(function (m) {
+        var r = m.getBoundingClientRect();
+        var top = Math.round(r.top - wRect.top);
+        var mid = Math.round(r.left - wRect.left + r.width / 2);
+        var row = null;
+        for (var i = 0; i < rows.length; i++) {
+          if (Math.abs(rows[i].top - top) < 26) { row = rows[i]; break; }
+        }
+        if (!row) { row = { top: top, items: [] }; rows.push(row); }
+        row.items.push(mid);
+      });
+      if (!rows.length) return;
+      rows.sort(function (a, b) { return a.top - b.top; });
+      rows.forEach(function (row) { row.items.sort(function (a, b) { return a - b; }); });
+
+      var sig = cx + "," + cy + "|" + rows.map(function (r) {
+        return r.top + ":" + r.items.join(".");
+      }).join(";");
+      if (sig === orgSig) return;
+      orgSig = sig;
+
+      var spine = "M" + cx + " " + cy;
+      var bus = "";
+      var drops = "";
+      var nodes = [];
+
+      rows.forEach(function (row, ri) {
+        var busY = row.top - (ri === 0 ? 40 : 34);
+        var leftX = Math.min(row.items[0], cx);
+        var rightX = Math.max(row.items[row.items.length - 1], cx);
+
+        spine += " L" + cx + " " + busY;
+        bus += (bus ? " " : "") + "M" + leftX + " " + busY + " L" + rightX + " " + busY;
+        row.items.forEach(function (x) {
+          drops += "M" + x + " " + busY + " L" + x + " " + row.top;
+          nodes.push([x, row.top]);
+        });
+      });
+
+      orgLines.setAttribute("viewBox", "0 0 " + W + " " + H);
+      while (orgLines.firstChild) orgLines.removeChild(orgLines.firstChild);
+
+      ["org__glow", "org__draw"].forEach(function (cls) {
+        var g = svgEl("g", { "class": cls, "fill": "none" });
+        g.appendChild(svgEl("path", { "class": "org__spine", d: spine }));
+        g.appendChild(svgEl("path", { "class": "org__bus", d: bus }));
+        g.appendChild(svgEl("path", { "class": "org__drops", d: drops }));
+        orgLines.appendChild(g);
+      });
+
+      var nodeG = svgEl("g", { "class": "org__nodes" });
+      nodeG.appendChild(svgEl("circle", { cx: cx, cy: cy, r: 4 }));
+      nodes.forEach(function (p) {
+        nodeG.appendChild(svgEl("circle", { cx: p[0], cy: p[1], r: 3 }));
+      });
+      orgLines.appendChild(nodeG);
+    }
+
+    function orgLoop() {
+      orgRaf = requestAnimationFrame(orgLoop);
+      var now = Date.now();
+      if (now - orgLastT < 40) return;   // ~25fps is plenty for layout tracking
+      orgLastT = now;
+      drawOrg();
+    }
+
+    if ("IntersectionObserver" in window) {
+      var orgIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting && !orgRaf) orgLoop();
+          else if (!e.isIntersecting && orgRaf) { cancelAnimationFrame(orgRaf); orgRaf = 0; }
+        });
+      }, { rootMargin: "0px 0px -8% 0px" });
+      orgIO.observe(orgWrap);
+    } else {
+      drawOrg();
+    }
+
+    window.addEventListener("resize", function () { orgSig = ""; drawOrg(); });
+    window.addEventListener("load", drawOrg);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawOrg);
   }
 
   /* ============================================================
@@ -155,7 +308,7 @@
     });
   }
 
-  var sections = ["programs", "trading", "mentors", "why", "contact"];
+  var sections = ["programs", "trading", "mentors", "group", "why", "contact"];
   if ("IntersectionObserver" in window) {
     var spy = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
@@ -247,6 +400,13 @@
         "</div>"
       );
     }
+    function listBlock(title, arr, cls) {
+      if (!arr || !arr.length) return "";
+      return '<div class="cv-block"><h3>' + esc(title) + '</h3><ul class="' + (cls || "cv-list") + '">' +
+        arr.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul></div>";
+    }
+
+    var isGroup = !!(m.group && m.group.length);
 
     var left = "";
     left += '<div class="cv-block"><h3>Professional summary</h3><p>' + esc(m.summary) + "</p></div>";
@@ -256,8 +416,14 @@
     if (m.internships && m.internships.length) {
       left += '<div class="cv-block"><h3>Internships</h3>' + m.internships.map(expBlock).join("") + "</div>";
     }
+    if (m.credentials && m.credentials.length) {
+      left += '<div class="cv-block"><h3>FBR credentials</h3><ul class="cv-creds">' +
+        m.credentials.map(function (c) {
+          return "<li><b>" + esc(c.k) + "</b><span>" + esc(c.v) + "</span></li>";
+        }).join("") + "</ul></div>";
+    }
     if (m.projects && m.projects.length) {
-      left += '<div class="cv-block"><h3>Selected work</h3><div class="cv-projects">' +
+      left += '<div class="cv-block"><h3>' + (isGroup ? "Group companies" : "Selected work") + '</h3><div class="cv-projects">' +
         m.projects.map(function (p) {
           return "<div><h4>" + esc(p.name) + "</h4>" + (p.desc ? "<p>" + esc(p.desc) + "</p>" : "") + "</div>";
         }).join("") + "</div></div>";
@@ -268,16 +434,36 @@
     }
 
     var right = "";
-    right += '<div class="cv-block"><h3>Skills</h3><ul class="cv-tags">' +
-      m.skills.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul></div>";
-    right += '<div class="cv-block"><h3>Education</h3><ul class="cv-list">' +
-      m.education.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul></div>";
-    right += '<div class="cv-block"><h3>Languages</h3><ul class="cv-list">' +
-      m.languages.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul></div>";
-    right += '<div class="cv-block"><h3>Key highlights</h3><ul class="cv-list">' +
-      m.highlights.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul></div>";
-    right += '<div class="cv-block"><h3>Contact</h3><ul class="cv-list">' +
-      "<li>" + esc(m.email) + "</li><li>" + esc(m.phone) + "</li><li>" + esc(m.address || m.location) + "</li></ul></div>";
+    if (m.skills && m.skills.length) {
+      right += '<div class="cv-block"><h3>Skills</h3><ul class="cv-tags">' +
+        m.skills.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul></div>";
+    }
+    if (m.education && m.education.length) {
+      right += '<div class="cv-block"><h3>Education</h3><ul class="cv-list">' +
+        m.education.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul></div>";
+    }
+    right += listBlock("Languages", m.languages);
+    right += listBlock("Key highlights", m.highlights);
+
+    var contact = [];
+    if (m.email) contact.push(esc(m.email));
+    if (m.phone) contact.push(esc(m.phone));
+    if (m.address || m.location) contact.push(esc(m.address || m.location));
+    if (contact.length) {
+      right += '<div class="cv-block"><h3>Contact</h3><ul class="cv-list">' +
+        contact.map(function (c) { return "<li>" + c + "</li>"; }).join("") + "</ul></div>";
+    }
+
+    var meta =
+      '<span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>' + esc(m.location) + "</span>";
+    if (m.email) {
+      meta += '<span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 6 9 7 9-7"/></svg>' + esc(m.email) + "</span>";
+    }
+
+    var actions = "";
+    if (m.email) actions += '<a class="btn btn--gold" href="mailto:' + esc(m.email) + '">Email</a>';
+    if (m.phone) actions += '<a class="btn btn--ghost" href="https://wa.me/' + tel + '" target="_blank" rel="noopener">WhatsApp</a>';
+    actions += '<button class="btn btn--ghost" id="cvPrint">Print / Save PDF</button>';
 
     return (
       '<header class="cv-head">' +
@@ -285,15 +471,8 @@
         "<div>" +
           '<p class="cv-head__role">' + esc(m.role) + "</p>" +
           '<h2 id="cvName">' + esc(m.name) + "</h2>" +
-          '<div class="cv-head__meta">' +
-            '<span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>' + esc(m.location) + "</span>" +
-            '<span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 6 9 7 9-7"/></svg>' + esc(m.email) + "</span>" +
-          "</div>" +
-          '<div class="cv-actions">' +
-            '<a class="btn btn--gold" href="mailto:' + esc(m.email) + '">Email</a>' +
-            '<a class="btn btn--ghost" href="https://wa.me/' + tel + '" target="_blank" rel="noopener">WhatsApp</a>' +
-            '<button class="btn btn--ghost" id="cvPrint">Print / Save PDF</button>' +
-          "</div>" +
+          '<div class="cv-head__meta">' + meta + "</div>" +
+          '<div class="cv-actions">' + actions + "</div>" +
         "</div>" +
       "</header>" +
       '<div class="cv-grid"><div class="cv-col">' + left + '</div><div class="cv-col">' + right + "</div></div>"
@@ -302,6 +481,7 @@
 
   function openCV(slug) {
     var m = (CP.team || []).filter(function (x) { return x.slug === slug; })[0];
+    if (!m && CP.ceo && CP.ceo.slug === slug) m = CP.ceo;
     if (!m || !modal) return;
     lastFocus = document.activeElement;
     modalBody.innerHTML = cvTemplate(m);

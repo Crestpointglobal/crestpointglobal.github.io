@@ -456,3 +456,165 @@ CP.team = [
     ]
   }
 ];
+
+/* ============================================================
+   LEADERSHIP — Founder & CEO (shown above the mentor grid,
+   with a connector line dropped down to the team).
+   ============================================================ */
+CP.ceo = {
+  slug: "imdad-ali-channa",
+  name: "Imdad Ali Channa",
+  role: "Founder & Chief Executive Officer",
+  org: "Crestpoint Global (Pvt) Ltd",
+  photo: "assets/images/team/imdad-ali-channa.jpg",
+  lead: "Educator, entrepreneur and institution-builder.",
+  location: "Karachi, Pakistan",
+  address: "Office # A11, Mezzanine Floor, Salman Tower, opposite NADRA office, Malir, Karachi",
+  cardSkills: [
+    "Institutional leadership",
+    "Education & welfare",
+    "Enterprise & strategy"
+  ],
+  summary: "Imdad Ali Channa is a Karachi-based educator and entrepreneur who has spent more than a decade turning small beginnings into working institutions — a welfare academy in rural Sindh, a construction company, a transport fleet and a marketing studio. He founded Crestpoint Global on a single belief: that practical skills and honest enterprise are the fastest route to a better life.",
+  credentials: [
+    { k: "FBR Registration No.", v: "4530140786867" },
+    { k: "Reference No.", v: "3584361-6" },
+    { k: "Registered on", v: "18 June 2010" },
+    { k: "Tax Office", v: "CTO Karachi" },
+    { k: "Registration status", v: "Income Tax — Active" }
+  ],
+  group: [
+    "Al Ameer Academy",
+    "Jeejal Enterprises",
+    "Al Naseeb Transport Services",
+    "Werben"
+  ],
+  experience: [
+    {
+      role: "Founder & Chief Executive Officer",
+      org: "Crestpoint Global (Pvt) Ltd",
+      year: "Present",
+      points: [
+        "Leads the institute's strategy, programs and partnerships.",
+        "Builds and directs the wider group of companies across education, construction, transport and marketing.",
+        "Keeps every company in the group registered and compliant with the Federal Board of Revenue."
+      ]
+    }
+  ],
+  projects: [
+    { name: "Al Ameer Academy", desc: "A welfare education institute offering free and subsidised schooling in rural Sindh." },
+    { name: "Jeejal Enterprises", desc: "A construction company delivering residential, commercial and civil works." },
+    { name: "Al Naseeb Transport Services", desc: "An intercity passenger coach and freight fleet operating across Pakistan." },
+    { name: "Werben", desc: "The group's marketing and creative studio for brand, campaigns and digital growth." }
+  ],
+  skills: [
+    "Institutional leadership",
+    "Education & welfare management",
+    "Construction & project delivery",
+    "Transport & fleet operations",
+    "Marketing & business development",
+    "Team building & mentoring",
+    "Financial & tax compliance (FBR)",
+    "Strategic planning"
+  ],
+  achievements: [
+    "Founded and leads Crestpoint Global (Pvt) Ltd — Institute of Technical Programs & Skills",
+    "Established Al Ameer Academy, a welfare education institute in Naushero Feroze",
+    "Built Jeejal Enterprises, a construction company delivering residential and civil works",
+    "Runs Al Naseeb Transport Services, an intercity coach and freight fleet",
+    "Founded Werben, the group's marketing and creative company",
+    "All group companies registered with the Federal Board of Revenue — Income Tax Active since 2010"
+  ],
+  languages: [
+    "Urdu — Native",
+    "English — Professional",
+    "Sindhi — Native"
+  ],
+  highlights: [
+    "FBR-registered taxpayer since 18 June 2010 (CTO Karachi)",
+    "Builds institutions that create real opportunity",
+    "Hands-on operator across four industries",
+    "Committed to education, welfare and honest enterprise"
+  ]
+};
+
+/* ============================================================
+   GROUP OF COMPANIES — rendered under the team, each with a
+   small animated 3D scene (see js/companies.js).
+   model: which 3D scene to build — academy | construction |
+   transport | marketing
+   ============================================================ */
+CP.companies = [
+  {
+    id: "al-ameer-academy",
+    name: "Al Ameer Academy",
+    kind: "Welfare Institute & Education",
+    model: "academy",
+    monogram: "AA",
+    accent: "#f2b93c",
+    accent2: "#2ee08a",
+    tag: "Free education for the children who need it most.",
+    desc: "A welfare institute offering free and subsidised schooling, Qur'an and Islamic education, and after-school support to under-served families in rural Sindh.",
+    features: [
+      "Free & subsidised tuition",
+      "Qur'an & Islamic education",
+      "Primary & secondary support classes",
+      "Character building & mentoring"
+    ],
+    address: "Khahi, Rahu, Naushero Feroze, Sindh"
+  },
+  {
+    id: "jeejal-enterprises",
+    name: "Jeejal Enterprises",
+    kind: "Construction Company",
+    model: "construction",
+    monogram: "JE",
+    accent: "#f2b93c",
+    accent2: "#ff7a2f",
+    tag: "Building homes, roads and commercial spaces.",
+    desc: "A construction company delivering residential, commercial and civil works — from foundations to finishing — with a focus on quality, safety and on-time delivery.",
+    features: [
+      "Residential & commercial builds",
+      "Civil & infrastructure works",
+      "Renovation & finishing",
+      "Project & site management"
+    ],
+    address: "Village Gahi Raho, Naushaharo Bhirya, Sindh"
+  },
+  {
+    id: "al-naseeb-transport",
+    name: "Al Naseeb Transport Services",
+    kind: "Transport & Logistics",
+    model: "transport",
+    monogram: "AN",
+    accent: "#35d6ff",
+    accent2: "#2ee08a",
+    tag: "Moving people and cargo across Pakistan.",
+    desc: "A transport services company running passenger coaches and freight fleets on intercity and upcountry routes, with dispatch, load and route management.",
+    features: [
+      "Passenger coaches",
+      "Freight & cargo fleet",
+      "Intercity & upcountry routes",
+      "Load & dispatch management"
+    ],
+    address: "Office # A11, Mezzanine Floor, Salman Tower, opposite NADRA office, Malir, Karachi"
+  },
+  {
+    id: "werben",
+    name: "Werben",
+    kind: "Marketing Company",
+    model: "marketing",
+    monogram: "W",
+    accent: "#ff2bd6",
+    accent2: "#7b5cff",
+    tag: "Marketing that grows the whole group.",
+    desc: "A marketing company handling brand, campaign and creative work — the group's in-house studio for advertising, design and digital growth.",
+    features: [
+      "Brand & campaign strategy",
+      "Creative & ad design",
+      "Digital marketing",
+      "Media & growth planning"
+    ],
+    address: "Village Gahi Raho, Naushaharo Bhirya, Sindh"
+  }
+];
