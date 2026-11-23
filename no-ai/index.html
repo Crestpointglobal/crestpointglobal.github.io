@@ -135,13 +135,58 @@
       display: block;
     }
 
+    /* ---------- hacking / cyberpunk backdrop ---------- */
+    #rain, #rainFront {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+    #rain { opacity: .8; }
+    #rainFront { opacity: .3; filter: blur(1.3px); }
+
+    .morpheus {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 1.2s ease .1s, transform .45s cubic-bezier(.22,.8,.3,1);
+      will-change: transform;
+    }
+    #reward-screen.is-on .morpheus { opacity: 1; }
+
+    /* breathe + glitch run on plain divs, so they stay on the compositor
+       instead of forcing a repaint of the whole SVG every frame */
+    .m-fig, .m-glitch { position: absolute; inset: 0; will-change: transform; }
+    .m-fig { animation: breathe 7.5s ease-in-out infinite; }
+    .morpheus.glitch .m-glitch { animation: glitchShift .36s steps(2, end) 1; }
+
+    .morpheus svg {
+      position: absolute; left: 50%; bottom: 0;
+      width: 100%; height: auto;
+      transform: translateX(-50%);
+      transform-origin: 50% 100%;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-7px) scale(1.006); }
+    }
+    @keyframes glitchShift {
+      0%   { transform: translateX(0); }
+      20%  { transform: translateX(-6px) skewX(-.7deg); }
+      45%  { transform: translateX(5px); }
+      70%  { transform: translateX(-3px) skewX(.5deg); }
+      100% { transform: translateX(0); }
+    }
+
     .select-glow {
       position: absolute; inset: 0; pointer-events: none;
       background: radial-gradient(42% 34% at 50% 50%, rgba(90,140,255,.10), transparent 72%);
     }
     .select-vignette {
       position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(62% 58% at 50% 46%, transparent 38%, rgba(2,3,6,.92) 100%);
+      background: radial-gradient(72% 66% at 50% 48%, transparent 40%, rgba(2,3,6,.88) 100%);
     }
     .select-scan {
       position: absolute; inset: 0; pointer-events: none; opacity: .5;
@@ -215,6 +260,16 @@
       #reward-screen { animation: none; }
       * { transition: none !important; }
       .select-loader i { animation-duration: 3s; }
+      .m-fig,
+      .morpheus.glitch .m-glitch { animation: none; }
+    }
+
+    /* portrait / phone: keep the bust tall so the face clears the pills */
+    @media (max-aspect-ratio: 1/1) {
+      .morpheus svg {
+        width: auto; height: 94%;
+        transform: translateX(-50%) translateY(-6%);
+      }
     }
 
     @media (max-width: 420px) {
@@ -253,7 +308,82 @@
 
   <!-- UNLOCKED: cinematic pill selection -->
   <section id="reward-screen" tabindex="-1" aria-label="Choose a path">
+    <!-- hacking backdrop: code rain, then the figure, then the pills -->
+    <canvas id="rain" aria-hidden="true"></canvas>
+
+    <div class="morpheus" id="morpheus" aria-hidden="true">
+     <div class="m-fig"><div class="m-glitch">
+      <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax meet" role="presentation" focusable="false">
+        <defs>
+          <linearGradient id="mBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4a6d92"/>
+            <stop offset=".24" stop-color="#2c4460"/>
+            <stop offset=".58" stop-color="#16233a"/>
+            <stop offset="1" stop-color="#0a1120"/>
+          </linearGradient>
+          <radialGradient id="mHalo" cx=".5" cy=".44" r=".54">
+            <stop offset="0" stop-color="#3396cc" stop-opacity=".5"/>
+            <stop offset=".42" stop-color="#1c5b85" stop-opacity=".26"/>
+            <stop offset="1" stop-color="#0e3f63" stop-opacity="0"/>
+          </radialGradient>
+          <pattern id="mScanPat" width="6" height="6" patternUnits="userSpaceOnUse">
+            <rect width="6" height="3" fill="#19e3ff" fill-opacity=".15"/>
+          </pattern>
+          <clipPath id="mClip"><use href="#mSilhouette"/></clipPath>
+          <g id="mSilhouette">
+            <!-- head + jaw -->
+            <path d="M800 162c-50 0-88 44-88 102 0 39 18 74 47 94 12 8 26 12 41 12s29-4 41-12c29-20 47-55 47-94 0-58-38-102-88-102Z"/>
+            <!-- neck -->
+            <path d="M768 360h64v108h-64Z"/>
+            <!-- coat: V neckline, sloping shoulders, arms down to a wide hem -->
+            <path d="M766 468C720 476 676 490 640 516C604 542 584 588 574 648C562 794 556 900 556 1000L1044 1000C1044 900 1038 794 1026 648C1016 588 996 542 960 516C924 490 880 476 834 468Q800 522 766 468Z"/>
+          </g>
+        </defs>
+
+        <rect x="0" y="0" width="1600" height="1000" fill="url(#mHalo)"/>
+
+        <g>
+          <!-- Peel a TRUE rim light: the whole silhouette is stroked while offset
+               each way, then one solid body fill is laid over the top. The fill
+               hides every internal seam (head / neck / shoulders), so only the
+               clean outer contour survives. -->
+          <g fill="none" stroke-linejoin="round">
+            <use href="#mSilhouette" stroke="#19e3ff" stroke-opacity=".12" stroke-width="34" transform="translate(-10,0)"/>
+            <use href="#mSilhouette" stroke="#19e3ff" stroke-opacity=".34" stroke-width="14" transform="translate(-6,0)"/>
+            <use href="#mSilhouette" stroke="#19e3ff" stroke-opacity=".95" stroke-width="3.5" transform="translate(-2.5,0)"/>
+            <use href="#mSilhouette" stroke="#ff2bd6" stroke-opacity=".12" stroke-width="34" transform="translate(10,0)"/>
+            <use href="#mSilhouette" stroke="#ff2bd6" stroke-opacity=".32" stroke-width="14" transform="translate(6,0)"/>
+            <use href="#mSilhouette" stroke="#ff2bd6" stroke-opacity=".9"  stroke-width="3.5" transform="translate(2.5,0)"/>
+          </g>
+
+          <g>
+            <use href="#mSilhouette" fill="url(#mBody)"/>
+
+            <!-- hologram scanlines, clipped to the figure (static: painted once) -->
+            <g clip-path="url(#mClip)">
+              <rect x="0" y="0" width="1600" height="1000" fill="url(#mScanPat)"/>
+            </g>
+
+            <!-- trench-coat lapels -->
+            <path d="M716 512 800 676 884 512" fill="none" stroke="#9fe0ff" stroke-opacity=".22" stroke-width="4"/>
+            <path d="M800 676v324" fill="none" stroke="#9fe0ff" stroke-opacity=".12" stroke-width="4"/>
+
+            <!-- sunglasses -->
+            <path d="M730 292c11-13 43-15 60-2 6 19-2 30-19 34-24 2-37-15-41-32Z"
+                  fill="#02050c" stroke="#7fe6ff" stroke-opacity=".7" stroke-width="3"/>
+            <path d="M870 292c-11-13-43-15-60-2-6 19 2 30 19 34 24 2 37-15 41-32Z"
+                  fill="#02050c" stroke="#7fe6ff" stroke-opacity=".7" stroke-width="3"/>
+            <path d="M788 284h24v11h-24Z" fill="#02050c" stroke="#7fe6ff" stroke-opacity=".5" stroke-width="2.5"/>
+            <path d="M744 286l40-5" stroke="#d8fdff" stroke-opacity=".9" stroke-width="4" stroke-linecap="round"/>
+            <path d="M856 286l-40-5" stroke="#d8fdff" stroke-opacity=".9" stroke-width="4" stroke-linecap="round"/>
+          </g>
+        </g>
+      </svg>
+     </div></div>
+    </div>
+
     <canvas id="pill3d" aria-hidden="true"></canvas>
+    <canvas id="rainFront" aria-hidden="true"></canvas>
 
     <div class="select-glow" aria-hidden="true"></div>
     <div class="select-vignette" aria-hidden="true"></div>
@@ -293,6 +423,7 @@
     var fallback = document.getElementById("selectFallback");
     var hitRed = document.getElementById("hitRed");
     var hitBlue = document.getElementById("hitBlue");
+    var morph = document.getElementById("morpheus");
 
     /* ---------------- unlock ---------------- */
 
@@ -304,6 +435,7 @@
       selectA11y.textContent =
         "Access granted. Two paths: Crestpoint on the left, Mythos on the right.";
       rewardScreen.focus();
+      bootBackground();
       bootPills();
     }
 
@@ -339,6 +471,135 @@
     try {
       if (sessionStorage.getItem("cp_unlocked") === "1") { unlock(); }
     } catch (e) {}
+
+    /* ---------------- hacking backdrop: canvas code rain ---------------- */
+
+    var RAIN_CHARS = "01ABCDEF0123456789<>{}[]#$%&*+=/|~^;:!?01";
+    var rainLayers = [];
+    var rainStarted = false;
+
+    function makeRain(canvas, cfg) {
+      var ctx = canvas.getContext("2d");
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var W = 0, H = 0, cols = 0, y = [], sp = [], tint = [];
+
+      function reset() {
+        W = canvas.clientWidth || window.innerWidth;
+        H = canvas.clientHeight || window.innerHeight;
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cols = Math.max(1, Math.ceil(W / cfg.size));
+        for (var i = 0; i < cols; i++) {
+          y[i] = Math.random() * H;
+          sp[i] = cfg.speed * (0.6 + Math.random() * 0.8);
+          tint[i] = cfg.tints[(Math.random() * cfg.tints.length) | 0];
+        }
+        ctx.clearRect(0, 0, W, H);
+      }
+
+      function frame(dt) {
+        /* erase with alpha so the canvas stays transparent over the page */
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = "rgba(0,0,0," + cfg.fade + ")";
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalCompositeOperation = "source-over";
+
+        ctx.font = cfg.size + "px 'Courier New', monospace";
+        ctx.textBaseline = "top";
+
+        for (var i = 0; i < cols; i++) {
+          var x = i * cfg.size;
+          var gy = y[i];
+          if (gy > -cfg.size * 3 && gy < H) {
+            ctx.fillStyle = tint[i];
+            ctx.globalAlpha = 0.5;
+            ctx.fillText(RAIN_CHARS.charAt((Math.random() * RAIN_CHARS.length) | 0), x, gy - cfg.size * 2);
+            ctx.globalAlpha = 0.9;
+            ctx.fillText(RAIN_CHARS.charAt((Math.random() * RAIN_CHARS.length) | 0), x, gy - cfg.size);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "#e6feff";
+            ctx.fillText(RAIN_CHARS.charAt((Math.random() * RAIN_CHARS.length) | 0), x, gy);
+          }
+          y[i] += sp[i] * dt;
+          if (y[i] > H + cfg.size * 3) {
+            y[i] = -cfg.size * (2 + Math.random() * 16);
+            sp[i] = cfg.speed * (0.6 + Math.random() * 0.8);
+            tint[i] = cfg.tints[(Math.random() * cfg.tints.length) | 0];
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      return { reset: reset, frame: frame };
+    }
+
+    function bootBackground() {
+      if (rainStarted) {
+        for (var r = 0; r < rainLayers.length; r++) rainLayers[r].reset();
+        return;
+      }
+      var back = document.getElementById("rain");
+      var front = document.getElementById("rainFront");
+      if (!back || !front) return;
+      rainStarted = true;
+
+      var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var NEON = ["#19e3ff", "#19e3ff", "#00ff9c", "#7b5cff", "#b6ff00"];
+
+      rainLayers = [
+        makeRain(back, { size: 16, speed: 46, fade: 0.075, tints: NEON }),
+        makeRain(front, { size: 27, speed: 82, fade: 0.11, tints: ["#19e3ff", "#ff2bd6"] })
+      ];
+      for (var k = 0; k < rainLayers.length; k++) rainLayers[k].reset();
+
+      if (reduced) {
+        for (var s = 0; s < 14; s++) {
+          for (var j = 0; j < rainLayers.length; j++) rainLayers[j].frame(1 / 30);
+        }
+        return;
+      }
+
+      var last = performance.now();
+      var acc = 0;
+
+      (function loop(now) {
+        requestAnimationFrame(loop);
+        var dt = Math.min((now - last) / 1000, 0.1);
+        last = now;
+        acc += dt;
+        if (acc < 1 / 34) return;   /* it is a backdrop; do not chase 60fps */
+        var step = acc;
+        acc = 0;
+        for (var j = 0; j < rainLayers.length; j++) rainLayers[j].frame(step);
+      })(last);
+
+      /* the occasional digital hiccup */
+      setInterval(function () {
+        if (!morph || document.hidden) return;
+        morph.classList.add("glitch");
+        setTimeout(function () { morph.classList.remove("glitch"); }, 400);
+      }, 5200);
+    }
+
+    /* the figure drifts against the pointer for a little depth */
+    var hasPointer = window.matchMedia("(hover: hover)").matches;
+    if (hasPointer && morph) {
+      window.addEventListener("pointermove", function (e) {
+        var nx = (e.clientX / window.innerWidth) * 2 - 1;
+        var ny = (e.clientY / window.innerHeight) * 2 - 1;
+        morph.style.transform =
+          "translate3d(" + (nx * -16).toFixed(1) + "px," + (ny * -9).toFixed(1) + "px,0)";
+      }, { passive: true });
+    }
+
+    var rainResize = 0;
+    window.addEventListener("resize", function () {
+      clearTimeout(rainResize);
+      rainResize = setTimeout(function () {
+        for (var i = 0; i < rainLayers.length; i++) rainLayers[i].reset();
+      }, 200);
+    });
 
     /* ---------------- load Three.js only when needed ---------------- */
 
@@ -528,19 +789,8 @@
       bluePill.rotation.set(0.18, 0.35, -0.5);
       scene.add(bluePivot);
 
-      /* ---- floor ---- */
-      var floor = new THREE.Mesh(
-        new THREE.CircleGeometry(10, 64),
-        new THREE.MeshStandardMaterial({
-          color: 0x04060b,
-          roughness: 0.42,
-          metalness: 0.85,
-          envMapIntensity: 0.45
-        })
-      );
-      floor.rotation.x = -Math.PI / 2;
-      floor.position.y = -1.55;
-      scene.add(floor);
+      /* ---- no floor: the code-rain backdrop supplies the ground plane, and a
+         solid disc here would paint over the figure behind the canvas ---- */
 
       /* ---- spotlight cones ---- */
       function cone(color, x) {
