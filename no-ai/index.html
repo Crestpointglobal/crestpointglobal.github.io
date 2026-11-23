@@ -138,6 +138,83 @@
 
     .cta-btn:hover { background: #e5c158; }
 
+    /* ---------- Red / Blue pills ---------- */
+    .pills { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 22px 0 8px; }
+
+    .pill {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 26px 18px 24px;
+      border-radius: 120px;
+      text-align: center;
+      text-decoration: none;
+      overflow: hidden;
+      border: 1px solid;
+      transition: transform .35s cubic-bezier(.22,.72,.2,1), box-shadow .35s, border-color .35s;
+    }
+    .pill::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, rgba(255,255,255,.045) 0 1px, transparent 1px 3px);
+      opacity: .45; pointer-events: none;
+    }
+    .pill__tag {
+      font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase; opacity: .8;
+    }
+    .pill__name { font-size: 17px; font-weight: bold; letter-spacing: .06em; }
+    .pill__desc { font-size: 11px; line-height: 1.45; color: var(--muted); }
+    .pill__go {
+      margin-top: 6px; font-size: 11px; letter-spacing: 2px; font-weight: bold;
+      padding: 5px 12px; border-radius: 999px; border: 1px solid currentColor;
+    }
+
+    .pill--red {
+      color: #ff5566;
+      border-color: rgba(255,60,80,.55);
+      background:
+        radial-gradient(120% 130% at 50% 0%, rgba(255,45,70,.30), transparent 62%),
+        linear-gradient(180deg, rgba(40,4,10,.95), rgba(12,2,5,.98));
+      box-shadow: 0 0 0 rgba(255,45,70,0), inset 0 1px 0 rgba(255,255,255,.07);
+    }
+    .pill--red:hover {
+      transform: translateY(-3px);
+      border-color: #ff5566;
+      box-shadow: 0 14px 40px -12px rgba(255,45,70,.75), 0 0 34px -10px rgba(255,45,70,.6);
+    }
+
+    .pill--blue {
+      color: #3fc9ff;
+      border-color: rgba(63,201,255,.55);
+      background:
+        radial-gradient(120% 130% at 50% 0%, rgba(45,140,255,.32), transparent 62%),
+        linear-gradient(180deg, rgba(3,12,40,.95), rgba(2,4,14,.98));
+      box-shadow: 0 0 0 rgba(45,140,255,0), inset 0 1px 0 rgba(255,255,255,.07);
+    }
+    .pill--blue:hover {
+      transform: translateY(-3px);
+      border-color: #3fc9ff;
+      box-shadow: 0 14px 40px -12px rgba(45,140,255,.75), 0 0 34px -10px rgba(25,227,255,.6);
+    }
+
+    .pill-hint { font-size: 11px; color: var(--muted); letter-spacing: 1px; margin: 10px 0 18px; }
+
+    .pill-contacts { display: flex; flex-direction: column; gap: 7px; border-top: 1px solid #27272a; padding-top: 14px; }
+    .pill-contacts a {
+      font-size: 11.5px; color: var(--muted); text-decoration: none; letter-spacing: .5px;
+      display: flex; justify-content: space-between; gap: 10px;
+    }
+    .pill-contacts a:hover { color: var(--text); }
+    .pill-contacts b { font-weight: normal; color: var(--gold); }
+
+    @media (max-width: 420px) {
+      .pills { grid-template-columns: 1fr; }
+      .pill { border-radius: 90px; padding: 24px 16px; }
+    }
+
     .back {
       display: inline-block;
       margin-top: 22px;
@@ -192,42 +269,48 @@
     <div id="reward-screen">
       <div class="badge">ACCESS GRANTED // CODE 8538</div>
       <div class="success-title">CONGRATULATIONS!</div>
-      <p class="subtitle">You cracked the code without AI. You are officially invited to <strong>FREE VIP Demo Classes</strong> at <span id="company-display">Crestpoint Global</span>.</p>
+      <p class="subtitle">You cracked it without AI. Two doors just opened — pick the one that fits the future you want.</p>
 
-      <ul class="tracks">
-        <li><strong>[01] TECH &amp; DEVELOPMENT:</strong> Web Dev, AI, Cybersecurity &amp; Software Services</li>
-        <li><strong>[02] FOREX, GOLD &amp; CRYPTO:</strong> Market Structure, Risk Management &amp; Live Execution</li>
-      </ul>
+      <div class="pills">
+        <a class="pill pill--red" href="https://crestpointglobal.github.io/" target="_blank" rel="noopener">
+          <span class="pill__tag">Red Pill</span>
+          <span class="pill__name">CRESTPOINT</span>
+          <span class="pill__desc">Training institute<br>Learn the skills. Get hired.</span>
+          <span class="pill__go">ENTER &rarr;</span>
+        </a>
 
-      <a id="whatsapp-link" href="#" target="_blank" rel="noopener" class="cta-btn">CLAIM MY FREE CLASS SEAT &rarr;</a>
+        <a class="pill pill--blue" href="https://crestpointglobal.github.io/mythos/" target="_blank" rel="noopener">
+          <span class="pill__tag">Blue Pill</span>
+          <span class="pill__name">MYTHOS</span>
+          <span class="pill__desc">Tech &amp; growth studio<br>Internships &amp; client work</span>
+          <span class="pill__go">ENTER &rarr;</span>
+        </a>
+      </div>
+
+      <p class="pill-hint">Both paths are free. Choose wisely.</p>
+
+      <div class="pill-contacts">
+        <a href="https://wa.me/923422132724?text=Hi%20Crestpoint!%20I%20decoded%208538%20and%20want%20a%20free%20demo%20class."
+           target="_blank" rel="noopener"><span>Crestpoint — free demo class</span><b>0342-2132724</b></a>
+        <a href="https://wa.me/923237649278?text=Hi%20Mythos!%20I%20decoded%208538%20and%20want%20to%20apply%20/%20work%20with%20you."
+           target="_blank" rel="noopener"><span>Mythos — internship / project</span><b>0323-7649278</b></a>
+      </div>
     </div>
 
     <a class="back" href="https://crestpointglobal.github.io/">← CRESTPOINT GLOBAL</a>
   </div>
 
   <script>
-    // === CONFIGURE YOUR DETAILS HERE ===
-    var COMPANY_NAME = "Crestpoint Global";
-    var WHATSAPP_NUMBER = "923422132724"; // country code + number, no + sign, no spaces
     var SECRET_CODE = "8538";
-    // ===================================
 
     var puzzleScreen = document.getElementById("puzzle-screen");
     var rewardScreen = document.getElementById("reward-screen");
     var input = document.getElementById("code-input");
     var errorMsg = document.getElementById("error-msg");
-    var waLink = document.getElementById("whatsapp-link");
-
-    document.getElementById("company-display").textContent = COMPANY_NAME;
 
     function unlock() {
       puzzleScreen.style.display = "none";
       rewardScreen.style.display = "block";
-
-      var message = encodeURIComponent(
-        "Hi " + COMPANY_NAME + "! I decoded " + SECRET_CODE + " without AI and want to claim my FREE demo class."
-      );
-      waLink.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + message;
 
       try { sessionStorage.setItem("cp_unlocked", "1"); } catch (e) {}
       rewardScreen.setAttribute("tabindex", "-1");
