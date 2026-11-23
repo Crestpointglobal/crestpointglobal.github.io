@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ACCESS TERMINAL | Decode Without AI — Crestpoint Global</title>
-  <meta name="description" content="Crack the 4-digit code without AI and claim your free VIP demo class at Crestpoint Global.">
+  <meta name="description" content="Crack the 4-digit code without AI and unlock your reward.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0a0a0c">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
@@ -104,132 +104,114 @@
 
     .error { color: #ef4444; font-size: 13px; display: none; margin-top: 8px; }
 
-    /* Reward Screen */
-    #reward-screen { display: none; animation: fadeIn 0.5s ease; }
-    #reward-screen:focus { outline: none; }
-
-    .success-title { color: var(--green); font-size: 24px; margin-bottom: 12px; }
-
-    .tracks {
-      background: #09090b;
-      border: 1px solid #27272a;
-      padding: 16px;
-      margin: 20px 0;
-      border-radius: 6px;
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
     }
 
-    .tracks li { list-style: none; margin-bottom: 10px; font-size: 14px; line-height: 1.4; }
-    .tracks li:last-child { margin-bottom: 0; }
-    .tracks strong { color: var(--gold); }
-
-    .cta-btn {
-      display: block;
-      width: 100%;
-      text-align: center;
-      background: var(--gold);
-      color: #000;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 15px;
-      border-radius: 4px;
-      font-size: 15px;
-      margin-top: 16px;
-    }
-
-    .cta-btn:hover { background: #e5c158; }
-
-    /* ---------- Red / Blue pills ---------- */
-    .pills { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 22px 0 8px; }
-
-    .pill {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 26px 18px 24px;
-      border-radius: 120px;
-      text-align: center;
-      text-decoration: none;
+    /* ==========================================================
+       SELECTION SCENE — full-screen 3D, no text on the pills
+       ========================================================== */
+    #reward-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
       overflow: hidden;
-      border: 1px solid;
-      transition: transform .35s cubic-bezier(.22,.72,.2,1), box-shadow .35s, border-color .35s;
+      outline: none;
+      background:
+        radial-gradient(75% 65% at 50% 44%, #0a1020 0%, #05070d 52%, #020306 100%);
     }
-    .pill::before {
-      content: "";
+    #reward-screen.is-on { display: block; animation: selectIn .5s ease both; }
+
+    #pill3d {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .select-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(42% 34% at 50% 50%, rgba(90,140,255,.10), transparent 72%);
+    }
+    .select-vignette {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(62% 58% at 50% 46%, transparent 38%, rgba(2,3,6,.92) 100%);
+    }
+    .select-scan {
+      position: absolute; inset: 0; pointer-events: none; opacity: .5;
+      background: repeating-linear-gradient(180deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px);
+      mix-blend-mode: overlay;
+    }
+
+    /* invisible hit targets that track the projected pills */
+    .pill-hit {
+      position: absolute; left: 0; top: 0;
+      width: clamp(150px, 24vmin, 300px);
+      height: clamp(220px, 40vmin, 440px);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      cursor: pointer;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pill-hit:focus-visible {
+      outline: 2px solid rgba(255,255,255,.75);
+      outline-offset: 8px;
+      border-radius: 999px;
+      box-shadow: 0 0 0 10px rgba(255,255,255,.05);
+    }
+
+    .select-loader {
       position: absolute; inset: 0;
-      background: repeating-linear-gradient(0deg, rgba(255,255,255,.045) 0 1px, transparent 1px 3px);
-      opacity: .45; pointer-events: none;
+      display: grid; place-items: center;
+      pointer-events: none;
     }
-    .pill__tag {
-      font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase; opacity: .8;
-    }
-    .pill__name { font-size: 17px; font-weight: bold; letter-spacing: .06em; }
-    .pill__desc { font-size: 11px; line-height: 1.45; color: var(--muted); }
-    .pill__go {
-      margin-top: 6px; font-size: 11px; letter-spacing: 2px; font-weight: bold;
-      padding: 5px 12px; border-radius: 999px; border: 1px solid currentColor;
-    }
-
-    .pill--red {
-      color: #ff5566;
-      border-color: rgba(255,60,80,.55);
-      background:
-        radial-gradient(120% 130% at 50% 0%, rgba(255,45,70,.30), transparent 62%),
-        linear-gradient(180deg, rgba(40,4,10,.95), rgba(12,2,5,.98));
-      box-shadow: 0 0 0 rgba(255,45,70,0), inset 0 1px 0 rgba(255,255,255,.07);
-    }
-    .pill--red:hover {
-      transform: translateY(-3px);
-      border-color: #ff5566;
-      box-shadow: 0 14px 40px -12px rgba(255,45,70,.75), 0 0 34px -10px rgba(255,45,70,.6);
+    .select-loader i {
+      display: block;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(120,170,255,.22);
+      border-top-color: rgba(130,205,255,.9);
+      animation: spin 1s linear infinite;
     }
 
-    .pill--blue {
-      color: #3fc9ff;
-      border-color: rgba(63,201,255,.55);
-      background:
-        radial-gradient(120% 130% at 50% 0%, rgba(45,140,255,.32), transparent 62%),
-        linear-gradient(180deg, rgba(3,12,40,.95), rgba(2,4,14,.98));
-      box-shadow: 0 0 0 rgba(45,140,255,0), inset 0 1px 0 rgba(255,255,255,.07);
+    /* if WebGL is unavailable: two blank pills, still clickable */
+    .select-fallback {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      gap: clamp(20px, 6vw, 70px);
+      padding: 24px;
     }
-    .pill--blue:hover {
-      transform: translateY(-3px);
-      border-color: #3fc9ff;
-      box-shadow: 0 14px 40px -12px rgba(45,140,255,.75), 0 0 34px -10px rgba(25,227,255,.6);
+    /* the author `display:flex` above beats the UA [hidden] rule, so be explicit */
+    .select-fallback[hidden] { display: none; }
+    .fb-pill {
+      width: clamp(64px, 12vmin, 120px);
+      height: clamp(150px, 30vmin, 260px);
+      border-radius: 999px;
+      position: relative;
+      transition: transform .3s, box-shadow .3s;
     }
-
-    .pill-hint { font-size: 11px; color: var(--muted); letter-spacing: 1px; margin: 10px 0 18px; }
-
-    .pill-contacts { display: flex; flex-direction: column; gap: 7px; border-top: 1px solid #27272a; padding-top: 14px; }
-    .pill-contacts a {
-      font-size: 11.5px; color: var(--muted); text-decoration: none; letter-spacing: .5px;
-      display: flex; justify-content: space-between; gap: 10px;
+    .fb-pill--red {
+      background: radial-gradient(60% 50% at 35% 22%, #ff7a80, #b3121f 55%, #4a0207 100%);
+      box-shadow: 0 0 70px -12px rgba(255,45,70,.8), inset 0 -12px 34px rgba(0,0,0,.55);
     }
-    .pill-contacts a:hover { color: var(--text); }
-    .pill-contacts b { font-weight: normal; color: var(--gold); white-space: nowrap; }
-
-    @media (max-width: 420px) {
-      .pills { grid-template-columns: 1fr; }
-      .pill { border-radius: 90px; padding: 24px 16px; }
+    .fb-pill--blue {
+      background: radial-gradient(60% 50% at 35% 22%, #8cbcff, #1445c4 55%, #03123f 100%);
+      box-shadow: 0 0 70px -12px rgba(45,120,255,.8), inset 0 -12px 34px rgba(0,0,0,.55);
     }
+    .fb-pill:hover { transform: translateY(-6px) scale(1.04); }
+    .fb-pill:focus-visible { outline: 2px solid #fff; outline-offset: 8px; }
 
-    .back {
-      display: inline-block;
-      margin-top: 22px;
-      color: var(--muted);
-      font-size: 12px;
-      text-decoration: none;
-      letter-spacing: 1px;
-    }
-    .back:hover { color: var(--gold); }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes selectIn { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes spin { to { transform: rotate(360deg) } }
 
     @media (prefers-reduced-motion: reduce) {
       #reward-screen { animation: none; }
       * { transition: none !important; }
+      .select-loader i { animation-duration: 3s; }
     }
 
     @media (max-width: 420px) {
@@ -241,7 +223,7 @@
 </head>
 <body>
 
-  <div class="terminal">
+  <main class="terminal" id="terminal">
     <!-- LOCKED CHALLENGE VIEW -->
     <div id="puzzle-screen">
       <div class="badge">HUMAN VERIFICATION</div>
@@ -264,57 +246,62 @@
       </div>
       <div class="error" id="error-msg" role="alert" aria-live="polite">ACCESS DENIED. Think again without AI.</div>
     </div>
+  </main>
 
-    <!-- UNLOCKED REWARD VIEW -->
-    <div id="reward-screen">
-      <div class="badge">ACCESS GRANTED // CODE 8538</div>
-      <div class="success-title">CONGRATULATIONS!</div>
-      <p class="subtitle">You cracked it without AI. Two doors just opened — pick the one that fits the future you want.</p>
+  <!-- UNLOCKED: cinematic pill selection -->
+  <section id="reward-screen" tabindex="-1" aria-label="Choose a path">
+    <canvas id="pill3d" aria-hidden="true"></canvas>
 
-      <div class="pills">
-        <a class="pill pill--red" href="https://crestpointglobal.github.io/" target="_blank" rel="noopener">
-          <span class="pill__tag">Red Pill</span>
-          <span class="pill__name">CRESTPOINT</span>
-          <span class="pill__desc">Training institute<br>Learn the skills. Get hired.</span>
-          <span class="pill__go">ENTER &rarr;</span>
-        </a>
+    <div class="select-glow" aria-hidden="true"></div>
+    <div class="select-vignette" aria-hidden="true"></div>
+    <div class="select-scan" aria-hidden="true"></div>
 
-        <a class="pill pill--blue" href="https://crestpointglobal.github.io/mythos/" target="_blank" rel="noopener">
-          <span class="pill__tag">Blue Pill</span>
-          <span class="pill__name">MYTHOS</span>
-          <span class="pill__desc">Tech &amp; growth studio<br>Internships &amp; client work</span>
-          <span class="pill__go">ENTER &rarr;</span>
-        </a>
-      </div>
+    <a class="pill-hit" id="hitRed" href="https://crestpointglobal.github.io/"
+       aria-label="Enter Crestpoint Global — training institute"></a>
+    <a class="pill-hit" id="hitBlue" href="https://crestpointglobal.github.io/mythos/"
+       aria-label="Enter Mythos — technology and growth studio"></a>
 
-      <p class="pill-hint">Both paths are free. Choose wisely.</p>
+    <div class="select-loader" id="selectLoader" aria-hidden="true"><i></i></div>
 
-      <div class="pill-contacts">
-        <a href="https://wa.me/923422132724?text=Hi%20Crestpoint!%20I%20decoded%208538%20and%20want%20a%20free%20demo%20class."
-           target="_blank" rel="noopener"><span>Crestpoint — free demo class</span><b>0342-2132724</b></a>
-        <a href="https://wa.me/923237649278?text=Hi%20Mythos!%20I%20decoded%208538%20and%20want%20to%20apply%20/%20work%20with%20you."
-           target="_blank" rel="noopener"><span>Mythos — internship / project</span><b>0323-7649278</b></a>
-      </div>
+    <div class="select-fallback" id="selectFallback" hidden>
+      <a class="fb-pill fb-pill--red" href="https://crestpointglobal.github.io/"
+         aria-label="Enter Crestpoint Global — training institute"></a>
+      <a class="fb-pill fb-pill--blue" href="https://crestpointglobal.github.io/mythos/"
+         aria-label="Enter Mythos — technology and growth studio"></a>
     </div>
 
-    <a class="back" href="https://crestpointglobal.github.io/">← CRESTPOINT GLOBAL</a>
-  </div>
+    <p class="sr-only" id="selectA11y" aria-live="polite"></p>
+  </section>
 
   <script>
+  (function () {
+    "use strict";
+
     var SECRET_CODE = "8538";
+    var CP_URL = "https://crestpointglobal.github.io/";
+    var MY_URL = "https://crestpointglobal.github.io/mythos/";
 
     var puzzleScreen = document.getElementById("puzzle-screen");
     var rewardScreen = document.getElementById("reward-screen");
     var input = document.getElementById("code-input");
     var errorMsg = document.getElementById("error-msg");
+    var selectA11y = document.getElementById("selectA11y");
+    var loader = document.getElementById("selectLoader");
+    var fallback = document.getElementById("selectFallback");
+    var hitRed = document.getElementById("hitRed");
+    var hitBlue = document.getElementById("hitBlue");
+
+    /* ---------------- unlock ---------------- */
 
     function unlock() {
       puzzleScreen.style.display = "none";
-      rewardScreen.style.display = "block";
-
+      rewardScreen.classList.add("is-on");
+      document.body.style.overflow = "hidden";
       try { sessionStorage.setItem("cp_unlocked", "1"); } catch (e) {}
-      rewardScreen.setAttribute("tabindex", "-1");
+      selectA11y.textContent =
+        "Access granted. Two paths: Crestpoint on the left, Mythos on the right.";
       rewardScreen.focus();
+      bootPills();
     }
 
     function checkCode() {
@@ -332,7 +319,6 @@
       }
     }
 
-    // digits only
     input.addEventListener("input", function () {
       this.value = this.value.replace(/\D/g, "").slice(0, 4);
       if (this.value.length < 4) {
@@ -347,10 +333,390 @@
 
     document.getElementById("unlock-btn").addEventListener("click", checkCode);
 
-    // keep the reward on accidental refresh
     try {
       if (sessionStorage.getItem("cp_unlocked") === "1") { unlock(); }
     } catch (e) {}
+
+    /* ---------------- load Three.js only when needed ---------------- */
+
+    var booted = false;
+
+    function showFallback() {
+      if (window.__pillsLive) return;
+      if (loader) loader.style.display = "none";
+      if (fallback) fallback.hidden = false;
+    }
+
+    function bootPills() {
+      if (booted) return;
+      booted = true;
+
+      var s = document.createElement("script");
+      s.src = "/assets/three/three.min.js";
+      s.async = true;
+      s.onload = function () {
+        try { initPills(); }
+        catch (e) { showFallback(); }
+      };
+      s.onerror = showFallback;
+      document.head.appendChild(s);
+
+      setTimeout(showFallback, 12000);
+    }
+
+    /* ---------------- the 3D scene ---------------- */
+
+    function initPills() {
+      var THREE = window.THREE;
+      var canvas = document.getElementById("pill3d");
+      if (!THREE || !canvas) { showFallback(); return; }
+
+      var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var renderer;
+
+      try {
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance"
+        });
+      } catch (e) { showFallback(); return; }
+
+      window.__pillsLive = true;
+      if (loader) loader.style.display = "none";
+      if (fallback) fallback.hidden = true;
+
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      if (THREE.sRGBEncoding !== undefined) renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.92;
+
+      var scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x05070c, 0.042);
+
+      var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 120);
+      camera.position.set(0, 0.12, 5.6);
+      camera.lookAt(0, 0, 0);
+
+      /* ---- studio environment for glossy reflections ---- */
+      scene.environment = buildEnv(renderer);
+
+      function buildEnv(r) {
+        var env = new THREE.Scene();
+        env.background = new THREE.Color(0x04060b);
+        env.add(new THREE.Mesh(
+          new THREE.BoxGeometry(30, 30, 30),
+          new THREE.MeshBasicMaterial({ color: 0x04060b, side: THREE.BackSide })
+        ));
+
+        function panel(color, intensity, x, y, z, w, h) {
+          var m = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+          m.color.multiplyScalar(intensity);
+          var p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
+          p.position.set(x, y, z);
+          p.lookAt(0, 0, 0);
+          env.add(p);
+        }
+
+        panel(0xffffff, 1.5, 0, 10, 4, 12, 6);   // top strip
+        panel(0x2f6bff, 1.1, -8, 2, 2, 5, 9);    // cool left
+        panel(0xff2b3c, 0.95, 8, 1, 2, 5, 9);    // warm right
+        panel(0x00f0ff, 0.55, 0, -6, -8, 10, 5); // floor bounce
+
+        var pmrem = new THREE.PMREMGenerator(r);
+        var rt = pmrem.fromScene(env, 0.04);
+        pmrem.dispose();
+        return rt.texture;
+      }
+
+      /* ---- lights ---- */
+      scene.add(new THREE.AmbientLight(0x141d2c, 0.35));
+
+      var key = new THREE.DirectionalLight(0xffffff, 0.9);
+      key.position.set(2.5, 5, 4);
+      scene.add(key);
+
+      var rim = new THREE.DirectionalLight(0x6ec6ff, 0.85);
+      rim.position.set(-4, 2, -5);
+      scene.add(rim);
+
+      var redLight = new THREE.PointLight(0xff1f30, 3.0, 11, 2);
+      redLight.position.set(-1.7, 0.7, 1.7);
+      scene.add(redLight);
+
+      var blueLight = new THREE.PointLight(0x1f6bff, 3.0, 11, 2);
+      blueLight.position.set(1.7, 0.7, 1.7);
+      scene.add(blueLight);
+
+      /* ---- pill factory ---- */
+      function makePill(bodyColor, emissive, seamColor, sheenColor) {
+        var g = new THREE.Group();
+
+        var mat = new THREE.MeshPhysicalMaterial({
+          color: bodyColor,
+          roughness: 0.3,
+          metalness: 0.02,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.12,
+          emissive: emissive,
+          emissiveIntensity: 0.08,
+          sheen: 0.45,
+          sheenColor: new THREE.Color(sheenColor),
+          sheenRoughness: 0.45,
+          envMapIntensity: 0.55
+        });
+
+        var body = new THREE.Mesh(new THREE.CapsuleGeometry(0.40, 0.86, 24, 48), mat);
+        g.add(body);
+
+        var seam = new THREE.Mesh(
+          new THREE.TorusGeometry(0.402, 0.012, 10, 72),
+          new THREE.MeshStandardMaterial({ color: seamColor, roughness: 0.55, metalness: 0.1 })
+        );
+        seam.rotation.x = Math.PI / 2;
+        g.add(seam);
+
+        g.userData.mat = mat;
+        return g;
+      }
+
+      /* ---- soft glow sprite ---- */
+      function glowTexture() {
+        var c = document.createElement("canvas");
+        c.width = c.height = 128;
+        var ctx = c.getContext("2d");
+        var grd = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+        grd.addColorStop(0, "rgba(255,255,255,1)");
+        grd.addColorStop(0.28, "rgba(255,255,255,.42)");
+        grd.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, 128, 128);
+        return new THREE.CanvasTexture(c);
+      }
+      var glowTex = glowTexture();
+
+      function addGlow(color) {
+        var sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: glowTex,
+          color: color,
+          transparent: true,
+          opacity: 0.42,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        }));
+        sprite.scale.set(3.1, 3.1, 1);
+        sprite.position.z = -0.75;
+        return sprite;
+      }
+
+      /* ---- the two pills ---- */
+      var redPivot = new THREE.Group();
+      var redPill = makePill(0x8e0a15, 0x2a0004, 0x5c0a10, 0xff3b48);
+      redPivot.add(redPill);
+      redPivot.add(addGlow(0xff2036));
+      redPill.rotation.set(0.18, -0.35, 0.5);
+      scene.add(redPivot);
+
+      var bluePivot = new THREE.Group();
+      var bluePill = makePill(0x0d33a8, 0x020a2e, 0x0a1f5a, 0x3f8dff);
+      bluePivot.add(bluePill);
+      bluePivot.add(addGlow(0x2f7bff));
+      bluePill.rotation.set(0.18, 0.35, -0.5);
+      scene.add(bluePivot);
+
+      /* ---- floor ---- */
+      var floor = new THREE.Mesh(
+        new THREE.CircleGeometry(10, 64),
+        new THREE.MeshStandardMaterial({
+          color: 0x04060b,
+          roughness: 0.42,
+          metalness: 0.85,
+          envMapIntensity: 0.45
+        })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -1.55;
+      scene.add(floor);
+
+      /* ---- spotlight cones ---- */
+      function cone(color, x) {
+        var mesh = new THREE.Mesh(
+          new THREE.ConeGeometry(1.45, 5.2, 32, 1, true),
+          new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.045,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            side: THREE.DoubleSide
+          })
+        );
+        mesh.position.set(x, 1.6, -0.7);
+        return mesh;
+      }
+      scene.add(cone(0xff2a3c, -1.18));
+      scene.add(cone(0x2f7bff, 1.18));
+
+      /* ---- dust ---- */
+      var DUST = 240;
+      var dustPos = new Float32Array(DUST * 3);
+      for (var i = 0; i < DUST; i++) {
+        dustPos[i * 3] = (Math.random() - 0.5) * 15;
+        dustPos[i * 3 + 1] = (Math.random() - 0.5) * 8;
+        dustPos[i * 3 + 2] = (Math.random() - 0.5) * 9 - 2;
+      }
+      var dustGeo = new THREE.BufferGeometry();
+      dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+      var dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({
+        size: 0.035,
+        color: 0x9fc6ff,
+        transparent: true,
+        opacity: 0.5,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      }));
+      scene.add(dust);
+
+      /* ---- sizing ---- */
+      var W = 1, H = 1;
+
+      function resize() {
+        W = canvas.clientWidth || window.innerWidth;
+        H = canvas.clientHeight || window.innerHeight;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setSize(W, H, false);
+
+        var portrait = (W / H) < 0.85;
+        var sep = portrait ? 0.74 : 1.18;
+
+        redPivot.position.x = -sep;
+        bluePivot.position.x = sep;
+        camera.aspect = W / H;
+        camera.position.z = portrait ? 8.2 : 5.6;
+        camera.updateProjectionMatrix();
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      /* ---- hit targets follow the projected pills ---- */
+      var hits = [
+        { el: hitRed, pivot: redPivot },
+        { el: hitBlue, pivot: bluePivot }
+      ];
+      var v = new THREE.Vector3();
+
+      function updateHits() {
+        for (var k = 0; k < hits.length; k++) {
+          v.copy(hits[k].pivot.position);
+          v.project(camera);
+          var x = (v.x * 0.5 + 0.5) * W;
+          var y = (-v.y * 0.5 + 0.5) * H;
+          hits[k].el.style.transform =
+            "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0) translate(-50%,-50%)";
+        }
+      }
+
+      /* ---- hover / focus ---- */
+      var hovered = null;
+
+      hits.forEach(function (h) {
+        h.el.addEventListener("mouseenter", function () { hovered = h.pivot; });
+        h.el.addEventListener("mouseleave", function () { if (hovered === h.pivot) hovered = null; });
+        h.el.addEventListener("focus", function () { hovered = h.pivot; });
+        h.el.addEventListener("blur", function () { if (hovered === h.pivot) hovered = null; });
+      });
+
+      /* ---- choose ---- */
+      var choosing = null;
+
+      function choose(pivot, url) {
+        if (choosing) return;
+        choosing = { pivot: pivot, t: 0 };
+        setTimeout(function () { window.location.href = url; }, 620);
+      }
+
+      [
+        [hitRed, redPivot, CP_URL],
+        [hitBlue, bluePivot, MY_URL]
+      ].forEach(function (t) {
+        t[0].addEventListener("click", function (e) {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+          e.preventDefault();
+          choose(t[1], t[2]);
+        });
+      });
+
+      /* ---- pointer parallax ---- */
+      var px = 0, py = 0;
+      window.addEventListener("pointermove", function (e) {
+        px = (e.clientX / window.innerWidth) * 2 - 1;
+        py = (e.clientY / window.innerHeight) * 2 - 1;
+      }, { passive: true });
+
+      /* ---- loop ---- */
+      var clock = new THREE.Clock();
+      var sRed = 1, sBlue = 1;
+
+      function tick() {
+        var dt = Math.min(clock.getDelta(), 0.05);
+        var t = clock.elapsedTime;
+        var sway = reduced ? 0 : 1;
+
+        /* float */
+        redPivot.position.y = Math.sin(t * 0.8) * 0.055 * sway;
+        bluePivot.position.y = Math.sin(t * 0.8 + 1.7) * 0.055 * sway;
+
+        redPill.rotation.y = -0.35 + Math.sin(t * 0.45) * 0.22 * sway;
+        bluePill.rotation.y = 0.35 + Math.sin(t * 0.45 + 2.1) * 0.22 * sway;
+        redPill.rotation.z = 0.5 + Math.sin(t * 0.6) * 0.05 * sway;
+        bluePill.rotation.z = -0.5 - Math.sin(t * 0.6 + 0.8) * 0.05 * sway;
+
+        /* hover response */
+        var tRed = hovered === redPivot ? 1.12 : (hovered ? 0.95 : 1);
+        var tBlue = hovered === bluePivot ? 1.12 : (hovered ? 0.95 : 1);
+        sRed += (tRed - sRed) * 0.14;
+        sBlue += (tBlue - sBlue) * 0.14;
+        redPivot.scale.setScalar(sRed);
+        bluePivot.scale.setScalar(sBlue);
+
+        redPill.userData.mat.emissiveIntensity = 0.08 + (hovered === redPivot ? 0.45 : 0);
+        bluePill.userData.mat.emissiveIntensity = 0.08 + (hovered === bluePivot ? 0.45 : 0);
+        redLight.intensity = 3.0 + (hovered === redPivot ? 2.6 : 0);
+        blueLight.intensity = 3.0 + (hovered === bluePivot ? 2.6 : 0);
+
+        /* dust */
+        dust.rotation.y += dt * 0.02 * sway;
+
+        /* camera */
+        if (choosing) {
+          choosing.t += dt;
+          var target = choosing.pivot === redPivot ? -0.9 : 0.9;
+          camera.position.x += (target - camera.position.x) * 0.08;
+          camera.position.z += (4.0 - camera.position.z) * 0.06;
+          camera.lookAt(choosing.pivot.position.x * 0.55, 0, 0);
+          choosing.pivot.scale.setScalar(1 + Math.min(1, choosing.t / 0.6) * 0.35);
+        } else {
+          camera.position.x += ((px * 0.16) - camera.position.x) * 0.05;
+          camera.position.y += ((0.12 - py * 0.10) - camera.position.y) * 0.05;
+          camera.lookAt(0, 0, 0);
+        }
+
+        updateHits();
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+
+      /* QA / debugging hook */
+      window.__pills = {
+        red: redPivot, blue: bluePivot, camera: camera,
+        scene: scene, renderer: renderer,
+        hovered: function () { return hovered === redPivot ? "red" : (hovered === bluePivot ? "blue" : null); }
+      };
+    }
+  })();
   </script>
 
 </body>
