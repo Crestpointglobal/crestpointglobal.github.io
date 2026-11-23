@@ -107,7 +107,7 @@
       '<article class="ceo" data-reveal>' +
         '<div class="ceo__glow" aria-hidden="true"></div>' +
         '<div class="ceo__photo">' +
-          '<img src="' + esc(ceo.photo) + '" alt="Portrait of ' + esc(ceo.name) + ', ' + esc(ceo.role) + '" width="548" height="685">' +
+          '<img src="' + esc(ceo.photo) + '" alt="Portrait of ' + esc(ceo.name) + ', ' + esc(ceo.role) + '" width="718" height="683">' +
           '<span class="ceo__badge">Founder &amp; CEO</span>' +
         "</div>" +
         '<div class="ceo__body">' +
@@ -467,7 +467,7 @@
 
     return (
       '<header class="cv-head">' +
-        '<img src="' + esc(m.photo) + '" alt="Portrait of ' + esc(m.name) + '">' +
+        '<img' + (isGroup ? ' class="cv-head__img--wide"' : "") + ' src="' + esc(m.photo) + '" alt="Portrait of ' + esc(m.name) + '">' +
         "<div>" +
           '<p class="cv-head__role">' + esc(m.role) + "</p>" +
           '<h2 id="cvName">' + esc(m.name) + "</h2>" +

@@ -548,7 +548,7 @@ h1,h2,h3,h4,.display{font-family:var(--sora);font-weight:700;letter-spacing:-.02
 
 .ceo{
   position:relative;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
-  gap:clamp(20px,3vw,42px);align-items:stretch;overflow:hidden;
+  gap:clamp(20px,3vw,42px);align-items:center;overflow:hidden;
   padding:clamp(16px,2vw,24px);border-radius:26px;
   border:1px solid var(--line-gold);
   background:
@@ -563,11 +563,11 @@ h1,h2,h3,h4,.display{font-family:var(--sora);font-weight:700;letter-spacing:-.02
   filter:blur(20px);pointer-events:none;
 }
 .ceo__photo{
-  position:relative;border-radius:18px;overflow:hidden;background:#060d1a;
-  min-height:clamp(300px,32vw,430px);
+  position:relative;width:100%;aspect-ratio:718/683;align-self:center;
+  border-radius:18px;overflow:hidden;background:#060d1a;
+  box-shadow:0 30px 60px -34px #000,inset 0 1px 0 rgba(255,255,255,.06);
 }
-.ceo__photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 14%}
-.ceo__photo::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 52%,rgba(4,9,18,.85))}
+.ceo__photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 .ceo__badge{
   position:absolute;left:14px;top:14px;z-index:2;
   font-family:var(--sora);font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
@@ -812,6 +812,7 @@ h1,h2,h3,h4,.display{font-family:var(--sora);font-weight:700;letter-spacing:-.02
   width:150px;aspect-ratio:4/4.8;object-fit:cover;object-position:50% 18%;border-radius:16px;
   border:1px solid rgba(25,227,255,.6);box-shadow:0 20px 40px -22px rgba(0,0,0,.9),0 0 34px -12px rgba(25,227,255,.55);
 }
+.cv-head img.cv-head__img--wide{aspect-ratio:718/683;object-position:50% 50%}
 .cv-head__role{font-family:var(--sora);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#19e3ff}
 .cv-head h2{font-size:clamp(28px,3.6vw,42px);letter-spacing:-.03em;margin:6px 0 10px}
 .cv-head__meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:#9fb6d6}
@@ -937,9 +938,7 @@ h1,h2,h3,h4,.display{font-family:var(--sora);font-weight:700;letter-spacing:-.02
   .trade-grid{grid-template-columns:1fr}
   .admit__grid{grid-template-columns:1fr}
   .ceo{grid-template-columns:1fr}
-  .ceo__photo{min-height:0;aspect-ratio:.92;max-width:540px;width:100%;margin-inline:auto}
-  .ceo__photo img{object-position:50% 26%}
-  .ceo__photo::after{background:linear-gradient(180deg,transparent 74%,rgba(4,9,18,.72))}
+  .ceo__photo{max-width:560px;margin-inline:auto}
   .cv-grid{grid-template-columns:1fr}
   .foot-grid{grid-template-columns:1fr 1fr}
   .world__hint{display:none}
