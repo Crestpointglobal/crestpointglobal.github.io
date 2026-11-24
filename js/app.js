@@ -21,6 +21,10 @@
   function intlPhone(p) {
     return "92" + String(p || "").replace(/\D/g, "").replace(/^0/, "");
   }
+  function prettyPhone(p) {
+    var local = String(p || "").replace(/\D/g, "").replace(/^92/, "0");
+    return /^0\d{10}$/.test(local) ? local.replace(/^(\d{4})(\d+)$/, "$1-$2") : String(p || "");
+  }
 
   /* ---------------- icons ---------------- */
   var ICONS = {
@@ -122,6 +126,14 @@
           '<ul class="ceo__group">' + ceo.group.map(function (n) {
             return "<li>" + esc(n) + "</li>";
           }).join("") + "</ul>" +
+          ((ceo.phones && ceo.phones.length)
+            ? '<div class="ceo__call">' +
+                '<span class="ceo__call-label">CEO number</span>' +
+                '<span class="ceo__call-nums">' + ceo.phones.map(function (p) {
+                  return '<a href="tel:+' + intlPhone(p) + '">' + esc(prettyPhone(p)) + "</a>";
+                }).join("") + "</span>" +
+              "</div>"
+            : "") +
           '<div class="ceo__actions">' +
             '<a class="btn btn--gold btn--sm" href="#group">Meet the group' +
               '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>' +
@@ -448,6 +460,11 @@
     var contact = [];
     if (m.email) contact.push(esc(m.email));
     if (m.phone) contact.push(esc(m.phone));
+    if (m.phones && m.phones.length) {
+      m.phones.forEach(function (p) {
+        contact.push('<a href="tel:+' + intlPhone(p) + '">' + esc(prettyPhone(p)) + "</a>");
+      });
+    }
     if (m.address || m.location) contact.push(esc(m.address || m.location));
     if (contact.length) {
       right += '<div class="cv-block"><h3>Contact</h3><ul class="cv-list">' +

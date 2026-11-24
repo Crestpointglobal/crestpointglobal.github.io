@@ -594,6 +594,15 @@ h1,h2,h3,h4,.display{font-family:var(--sora);font-weight:700;letter-spacing:-.02
   font-family:var(--sora);font-size:11px;font-weight:500;padding:6px 12px;border-radius:999px;
   color:#ffe7a3;background:rgba(242,185,60,.08);border:1px solid var(--line-gold);
 }
+.ceo__call{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin-top:18px}
+.ceo__call-label{font-family:var(--sora);font-size:12px;font-weight:600;color:var(--gold);letter-spacing:.02em}
+.ceo__call-nums{display:flex;flex-wrap:wrap;gap:6px 18px}
+.ceo__call-nums a{
+  font-family:var(--sora);font-size:14px;font-weight:600;color:#fff;letter-spacing:.01em;
+  border-bottom:1px solid rgba(242,185,60,.42);padding-bottom:1px;
+  transition:color .25s,border-color .25s;
+}
+.ceo__call-nums a:hover{color:var(--gold-light);border-color:var(--gold)}
 .ceo__actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:22px}
 
 /* ---- 12c. Group of companies ---- */

@@ -470,6 +470,7 @@ CP.ceo = {
   lead: "Educator, entrepreneur and institution-builder.",
   location: "Karachi, Pakistan",
   address: "Office # A11, Mezzanine Floor, Salman Tower, opposite NADRA office, Malir, Karachi",
+  phones: ["03000360577", "03218917769"],
   cardSkills: [
     "Institutional leadership",
     "Education & welfare",
