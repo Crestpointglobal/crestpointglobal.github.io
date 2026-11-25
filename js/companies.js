@@ -9,8 +9,9 @@
      transport    → Pakistani-style intercity coach, wheels turning
      marketing    → growth bars + rising arrow + megaphone + orbit
 
-   Each scene renders only while on screen and only ~30fps, so the
-   four extra WebGL contexts stay cheap next to the main world.
+   Each scene renders at the display's refresh rate while it is on screen,
+   adapts its internal resolution to hold that rate, and parks itself when
+   scrolled away or when the tab is hidden.
    ============================================================ */
 (function () {
   "use strict";
@@ -520,9 +521,14 @@
 
     if (!scenes.length) return;
 
+    // Adaptive resolution — shared by all four canvases.
+    var dprCap = Math.min(window.devicePixelRatio || 1, 1.75);
+    var dpr = dprCap;
+
     function sizeOne(s) {
       var w = s.canvas.clientWidth || 320;
       var h = s.canvas.clientHeight || 200;
+      s.renderer.setPixelRatio(dpr);
       s.renderer.setSize(w, h, false);
       s.camera.aspect = w / h;
       s.camera.updateProjectionMatrix();
@@ -536,6 +542,57 @@
       window.addEventListener("resize", function () { scenes.forEach(sizeOne); });
     }
 
+    if (reduced) {
+      scenes.forEach(function (s) { s.model.update(0, 0); s.renderer.render(s.scene, s.camera); });
+      return;
+    }
+
+    var clock = new THREE.Clock();
+    var pageVisible = true;
+    var rafOn = false;
+    var rafId = 0;
+    var fpsAcc = 0, fpsFrames = 0;
+
+    function anyVisible() {
+      for (var i = 0; i < scenes.length; i++) if (scenes[i].visible) return true;
+      return false;
+    }
+    function stop() {
+      if (rafOn) { cancelAnimationFrame(rafId); rafOn = false; }
+    }
+    function start() {
+      if (!rafOn && pageVisible) {
+        rafOn = true;
+        clock.getDelta();            // drop the gap since we last rendered
+        rafId = requestAnimationFrame(loop);
+      }
+    }
+
+    function loop() {
+      if (!pageVisible || !anyVisible()) { rafOn = false; return; }
+
+      var dt = Math.min(clock.getDelta(), 0.08);
+      var t = clock.elapsedTime;
+
+      for (var i = 0; i < scenes.length; i++) {
+        var s = scenes[i];
+        if (!s.visible) continue;
+        s.model.update(t, dt);
+        s.renderer.render(s.scene, s.camera);
+      }
+
+      // Adaptive resolution: stay fluid, climb back when there is headroom.
+      fpsAcc += dt; fpsFrames++;
+      if (fpsAcc >= 1) {
+        var fps = fpsFrames / fpsAcc;
+        fpsAcc = 0; fpsFrames = 0;
+        if (fps < 50 && dpr > 1) { dpr = Math.max(1, dpr - 0.2); scenes.forEach(sizeOne); }
+        else if (fps > 58 && dpr < dprCap) { dpr = Math.min(dprCap, dpr + 0.15); scenes.forEach(sizeOne); }
+      }
+
+      rafId = requestAnimationFrame(loop);
+    }
+
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
@@ -543,37 +600,20 @@
             if (scenes[i].canvas === e.target) scenes[i].visible = e.isIntersecting;
           }
         });
+        start();
       }, { rootMargin: "90px 0px" });
       scenes.forEach(function (s) { io.observe(s.canvas); });
     } else {
       scenes.forEach(function (s) { s.visible = true; });
+      start();
     }
 
-    if (reduced) {
-      scenes.forEach(function (s) { s.model.update(0, 0); s.renderer.render(s.scene, s.camera); });
-      return;
-    }
-
-    var clock = new THREE.Clock();
-    var frame = 0;
-    var pageVisible = true;
     document.addEventListener("visibilitychange", function () {
       pageVisible = !document.hidden;
-      if (pageVisible) clock.getDelta();
+      if (pageVisible) start(); else stop();
     });
 
-    (function loop() {
-      requestAnimationFrame(loop);
-      if ((frame++ & 1) || !pageVisible) return;   // ~30fps
-      var dt = Math.min(clock.getDelta(), 0.08);
-      var t = clock.elapsedTime;
-      for (var i = 0; i < scenes.length; i++) {
-        var s = scenes[i];
-        if (!s.visible) continue;
-        s.model.update(t, dt);
-        s.renderer.render(s.scene, s.camera);
-      }
-    })();
+    start();
   }
 
   if (document.readyState === "complete") init();

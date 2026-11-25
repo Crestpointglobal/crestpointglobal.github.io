@@ -13,6 +13,7 @@
   var muted = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var mobile = window.matchMedia("(max-width: 760px)").matches;
   var DPR = Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.8);
+  var baseDPR = DPR;   // adaptive resolution never exceeds this
 
   /* ---------- renderer / scene / camera ---------- */
   var renderer;
@@ -1153,6 +1154,29 @@
   var rafId = null;
   var visible = true;
 
+  /* ---------- adaptive resolution ----------
+     Keep the flight fluid on weaker GPUs: if the frame rate dips we render
+     at a lower internal resolution (all the post-processing passes shrink
+     with it), then climb back toward full sharpness when there is headroom. */
+  var qAcc = 0, qFrames = 0;
+  function setDPR(v) {
+    v = Math.max(1, Math.min(baseDPR, v));
+    if (Math.abs(v - DPR) < 0.02) return;
+    DPR = v;
+    renderer.setPixelRatio(DPR);
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    if (post) post.resize();
+  }
+  function sampleQuality(dt, t) {
+    if (t < 3) return;                       // ignore warm-up jank
+    qAcc += dt; qFrames++;
+    if (qAcc < 1) return;
+    var fps = qFrames / qAcc;
+    qAcc = 0; qFrames = 0;
+    if (fps < 48 && DPR > 1) setDPR(DPR - 0.2);
+    else if (fps > 58 && DPR < baseDPR) setDPR(DPR + 0.15);
+  }
+
   document.addEventListener("visibilitychange", function () {
     visible = !document.hidden;
     if (visible) clock.getDelta();
@@ -1275,6 +1299,7 @@
     goldLight.position.set(Math.sin(t * 0.4) * 6, 4 + Math.sin(t * 0.7) * 1.5, 8);
     cyanLight.position.set(Math.sin(t * 0.3 + 2) * 8, -2 + Math.cos(t * 0.5) * 1.5, -8);
 
+    sampleQuality(dt, t);
     draw();
   }
 

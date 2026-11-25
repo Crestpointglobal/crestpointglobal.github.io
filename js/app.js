@@ -254,19 +254,30 @@
       orgLines.appendChild(nodeG);
     }
 
+    /* The connector only needs to re-measure while the layout is settling
+       (reveal transitions, late fonts/photos). Once it is stable we stop the
+       loop instead of forcing a layout read every frame. */
+    var ORG_SETTLE_MS = 1600;
+    var orgStartT = 0;
+
     function orgLoop() {
-      orgRaf = requestAnimationFrame(orgLoop);
+      orgRaf = 0;
       var now = Date.now();
-      if (now - orgLastT < 40) return;   // ~25fps is plenty for layout tracking
-      orgLastT = now;
-      drawOrg();
+      if (now - orgLastT >= 40) { orgLastT = now; drawOrg(); }
+      if (Date.now() - orgStartT < ORG_SETTLE_MS) orgRaf = requestAnimationFrame(orgLoop);
+    }
+
+    function orgRun() {
+      if (orgRaf) return;
+      orgStartT = Date.now();
+      orgRaf = requestAnimationFrame(orgLoop);
     }
 
     if ("IntersectionObserver" in window) {
       var orgIO = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
-          if (e.isIntersecting && !orgRaf) orgLoop();
-          else if (!e.isIntersecting && orgRaf) { cancelAnimationFrame(orgRaf); orgRaf = 0; }
+          if (e.isIntersecting) orgRun();
+          else if (orgRaf) { cancelAnimationFrame(orgRaf); orgRaf = 0; }
         });
       }, { rootMargin: "0px 0px -8% 0px" });
       orgIO.observe(orgWrap);
@@ -274,9 +285,9 @@
       drawOrg();
     }
 
-    window.addEventListener("resize", function () { orgSig = ""; drawOrg(); });
-    window.addEventListener("load", drawOrg);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawOrg);
+    window.addEventListener("resize", function () { orgSig = ""; drawOrg(); orgRun(); });
+    window.addEventListener("load", function () { setTimeout(orgRun, 400); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(orgRun, 120); });
   }
 
   /* ============================================================
@@ -285,24 +296,47 @@
   var head = $("#siteHead");
   var nav = $("#nav");
   var burger = $("#burger");
+  var scrollBarEl = $("#scrollBar");
+  var toTopEl = $("#toTop");
+  var worldHintEl = $("#worldHint");
+
+  // Cached so scrolling never touches the DOM tree or forces layout.
+  var docMax = 1;
+  var chromeQueued = false;
 
   function onScrollChrome() {
     var y = window.scrollY;
     if (head) head.classList.toggle("is-stuck", y > 24);
-
-    var bar = $("#scrollBar");
-    if (bar) {
-      var max = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.width = (max > 0 ? (y / max) * 100 : 0) + "%";
+    if (scrollBarEl) {
+      var pct = docMax > 0 ? (y / docMax) * 100 : 0;
+      scrollBarEl.style.width = Math.min(100, Math.max(0, pct)) + "%";
     }
-    var top = $("#toTop");
-    if (top) top.classList.toggle("is-on", y > 640);
-
-    var hint = $("#worldHint");
-    if (hint && y > 120) hint.classList.remove("is-on");
+    if (toTopEl) toTopEl.classList.toggle("is-on", y > 640);
+    if (worldHintEl && y > 120) worldHintEl.classList.remove("is-on");
   }
-  window.addEventListener("scroll", onScrollChrome, { passive: true });
-  onScrollChrome();
+
+  function measureChrome() {
+    docMax = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    onScrollChrome();
+  }
+
+  function queueChrome() {
+    if (chromeQueued) return;
+    chromeQueued = true;
+    requestAnimationFrame(function () {
+      chromeQueued = false;
+      onScrollChrome();
+    });
+  }
+
+  window.addEventListener("scroll", queueChrome, { passive: true });
+  measureChrome();
+  window.addEventListener("resize", measureChrome, { passive: true });
+  window.addEventListener("load", function () { setTimeout(measureChrome, 300); });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { setTimeout(measureChrome, 120); });
+  }
+  setTimeout(measureChrome, 1500);
 
   if (burger && nav) {
     burger.addEventListener("click", function () {
@@ -376,20 +410,29 @@
 
     var cx = window.innerWidth / 2, cy = window.innerHeight / 2;
     var rx = cx, ry = cy;
+    var cursorRaf = 0;
+
+    function follow() {
+      cursorRaf = 0;
+      rx += (cx - rx) * 0.16;
+      ry += (cy - ry) * 0.16;
+      ring.style.transform = "translate(" + rx + "px," + ry + "px)";
+      // Park the loop once the ring has caught up to the pointer.
+      if (Math.abs(cx - rx) > 0.4 || Math.abs(cy - ry) > 0.4) cursorRaf = requestAnimationFrame(follow);
+    }
+    function wakeCursor() {
+      if (!cursorRaf) cursorRaf = requestAnimationFrame(follow);
+    }
 
     window.addEventListener("pointermove", function (e) {
       cx = e.clientX; cy = e.clientY;
       dot.style.transform = "translate(" + cx + "px," + cy + "px)";
       var hot = e.target.closest("a,button,[data-tilt],input,select,textarea");
       ring.classList.toggle("is-hover", !!hot);
+      wakeCursor();
     }, { passive: true });
 
-    (function follow() {
-      rx += (cx - rx) * 0.16;
-      ry += (cy - ry) * 0.16;
-      ring.style.transform = "translate(" + rx + "px," + ry + "px)";
-      requestAnimationFrame(follow);
-    })();
+    wakeCursor();
   }
 
   /* ============================================================
